@@ -1,0 +1,28 @@
+name: diego-portfolio-front
+
+# React build served by Nginx. /api, /uploads and /sitemap.xml are forwarded to the API container
+# (repository My-personal-Website-Back), reachable as "api" in the shared network diego-portfolio-net.
+services:
+  web:
+    image: diego-portfolio-web:local
+    container_name: diego-portfolio-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:${PORTFOLIO_PORT:-8080}:8080"
+    networks:
+      - portfolio
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+networks:
+  portfolio:
+    name: diego-portfolio-net
+    external: true

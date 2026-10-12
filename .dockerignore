@@ -1,0 +1,11 @@
+.git
+node_modules
+dist
+docs
+scripts
+**/*.tsbuildinfo
+**/.env
+**/.env.*
+*.md
+*.ps1
+compose.yaml

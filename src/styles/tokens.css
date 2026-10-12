@@ -1,0 +1,90 @@
+/* Design tokens. Every colour used by the site is defined here, once per theme. */
+:root {
+  color-scheme: light;
+  --font-sans: 'DM Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --bg: #f5f3ee;
+  --bg-raised: #fbfaf7;
+  --bg-sunken: #ebe8e0;
+  --ink: #16171a;
+  --text: #2b2c29;
+  --muted: #5c5e57;
+  --faint: #9a9c93;
+  --line: #dedad0;
+  --line-strong: #c6c2b6;
+  --accent: #e2491d;
+  --accent-text: #b13a12;
+  --accent-soft: #f8e1d5;
+  --success: #24834f;
+  --danger: #b03a26;
+  --button-hover: #34363b;
+  --shadow: 0 1px 2px rgb(22 23 26 / 0.05), 0 18px 40px -18px rgb(22 23 26 / 0.18);
+
+  /* Fixed palettes: the contact band and the code card look the same in both themes. */
+  --band-bg: #e2491d;
+  --band-ink: #1b0d06;
+  --code-bg: #141517;
+  --code-text: #e9e7e0;
+
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --shell: 1200px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --header-h: 72px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #111211;
+    --bg-raised: #191a18;
+    --bg-sunken: #0b0c0b;
+    --ink: #f4f2eb;
+    --text: #d8d6ce;
+    --muted: #a3a49b;
+    --faint: #6d6e67;
+    --line: #2a2b28;
+    --line-strong: #3d3e3a;
+    --accent: #ff6a3d;
+    --accent-text: #ff8c66;
+    --accent-soft: #3a1c10;
+    --success: #4cc787;
+    --danger: #ff7b66;
+    --button-hover: #d9d7cf;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 18px 40px -18px rgb(0 0 0 / 0.6);
+    --band-bg: #ff6a3d;
+    --code-bg: #0b0c0b;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #111211;
+  --bg-raised: #191a18;
+  --bg-sunken: #0b0c0b;
+  --ink: #f4f2eb;
+  --text: #d8d6ce;
+  --muted: #a3a49b;
+  --faint: #6d6e67;
+  --line: #2a2b28;
+  --line-strong: #3d3e3a;
+  --accent: #ff6a3d;
+  --accent-text: #ff8c66;
+  --accent-soft: #3a1c10;
+  --success: #4cc787;
+  --danger: #ff7b66;
+  --button-hover: #d9d7cf;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 18px 40px -18px rgb(0 0 0 / 0.6);
+  --band-bg: #ff6a3d;
+  --code-bg: #0b0c0b;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --header-h: 64px;
+  }
+}

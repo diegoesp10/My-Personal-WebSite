@@ -1,0 +1,136 @@
+/* Printing turns any page into a clean document; the experience page becomes a one-column CV. */
+@media print {
+  @page {
+    margin: 14mm 14mm 16mm;
+  }
+
+  :root {
+    --bg: #fff;
+    --bg-raised: #fff;
+    --bg-sunken: #fff;
+    --ink: #111;
+    --text: #222;
+    --muted: #555;
+    --line: #ddd;
+    --line-strong: #bbb;
+    --accent: #c2410c;
+  }
+
+  body {
+    background: #fff;
+    font-size: 10pt;
+    line-height: 1.45;
+  }
+
+  .site-header,
+  .site-footer,
+  .contact-band,
+  .skip-link,
+  .page-actions,
+  .pager,
+  .breadcrumb,
+  .hero-visual,
+  .social-links,
+  .project-card-open {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  .page {
+    animation: none;
+  }
+
+  .shell {
+    width: 100%;
+  }
+
+  .cv-print-header h1 {
+    font-size: 22pt;
+    letter-spacing: -0.02em;
+  }
+
+  .cv-print-header p {
+    margin: 2pt 0;
+  }
+
+  .cv-print-header {
+    padding-bottom: 8pt;
+    margin-bottom: 12pt;
+    border-bottom: 1px solid #bbb;
+  }
+
+  /* On the CV the on-screen header and sidebar are replaced by the print header. */
+  .cv-print-header ~ .cv-layout,
+  .cv-print-header + .cv-layout {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+
+  .page-header:has(+ .cv-print-header),
+  .cv-aside {
+    display: none;
+  }
+
+  .cv-section + .cv-section {
+    margin-top: 14pt;
+  }
+
+  .cv-heading {
+    margin-bottom: 6pt;
+    font-size: 13pt;
+  }
+
+  .timeline-item {
+    grid-template-columns: 110pt 1fr;
+    gap: 10pt;
+    padding: 8pt 0;
+    break-inside: avoid;
+  }
+
+  .timeline-what h3 {
+    font-size: 11.5pt;
+  }
+
+  .timeline-highlights li {
+    margin: 3pt 0;
+  }
+
+  .skill-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .skill-grid article,
+  .skill-grid article:nth-child(even) {
+    padding: 6pt 8pt 6pt 0;
+    border-left: 0;
+    break-inside: avoid;
+  }
+
+  .skill-grid h3 {
+    font-size: 10.5pt;
+  }
+
+  .tags li {
+    padding: 0 5pt;
+    font-size: 8pt;
+  }
+
+  .education-list li {
+    padding: 6pt 0;
+  }
+
+  .prose p {
+    margin-bottom: 5pt;
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+}
