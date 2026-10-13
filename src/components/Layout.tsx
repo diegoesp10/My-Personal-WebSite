@@ -6,6 +6,7 @@ import { errorPath } from '../lib/errors';
 import { usePageMetadata } from '../lib/seo';
 import { sendVisit } from '../data/visits';
 import { BrandMark } from './Brand';
+import { CookieConsent } from '../consent/CookieConsent';
 import { Footer } from './Footer';
 import { Header } from './Header';
 
@@ -52,6 +53,7 @@ export function Layout() {
         </Suspense>
       </main>
       <Footer data={data} canEdit={canEdit === true} />
+      <CookieConsent />
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { Layout } from './components/Layout';
 import { PortfolioProvider } from './data/PortfolioContext';
@@ -17,6 +17,7 @@ import ProjectsPage from './pages/ProjectsPage';
 // Rarely visited: loaded on demand.
 const GitHubPage = lazy(() => import('./pages/GitHubPage'));
 const VisitsPage = lazy(() => import('./pages/VisitsPage'));
+const LegalPage = lazy(() => import('./pages/LegalPage'));
 const EditorPage = lazy(() => import('./editor/EditorPage'));
 
 // Data router: required for view transitions between pages.
@@ -40,6 +41,8 @@ const router = createBrowserRouter([
           { path: 'diario', element: <JournalPage /> },
           { path: 'diario/:id', element: <EntryPage /> },
           { path: 'contacto', element: <ContactPage /> },
+          { path: 'legal', element: <Navigate to="/legal/aviso-legal" replace /> },
+          { path: 'legal/:slug', element: <LegalPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },
