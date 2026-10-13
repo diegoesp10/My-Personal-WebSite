@@ -1,10 +1,64 @@
-export async function request<T>(url: string, init?: RequestInit): Promise<T> {
-  const r = await fetch(url, init);
-  if (!r.ok) {
-    const body = await r.json().catch(() => null);
-    throw new Error(body?.error || `No se pudo completar la operación (${r.status}).`);
+/** Field that failed the API validation (`errors` of a `validation.failed` problem). */
+export type FieldError = { field: string; code: string; message: string };
+
+/**
+ * Failure of an API call. The API answers errors as Problem Details (RFC 9457): `code` is stable and drives the
+ * interface (see lib/errors.ts), `message` is the translated `detail` and `traceId` identifies the request in its
+ * logs. Older responses ({ error }) and failures without a body get a code from their status; `network` means the
+ * server could not be reached.
+ */
+export class ApiError extends Error {
+  constructor(
+    readonly code: string,
+    message: string,
+    readonly status: number,
+    readonly traceId?: string,
+    readonly errors: FieldError[] = [],
+  ) {
+    super(message);
+    this.name = 'ApiError';
   }
-  return r.json();
+}
+
+const codeForStatus = (status: number) =>
+  status === 404
+    ? 'resource.not_found'
+    : status === 413
+      ? 'request.too_large'
+      : status === 429
+        ? 'rate_limit.exceeded'
+        : status === 502 || status === 503 || status === 504
+          ? 'service.unavailable'
+          : status >= 500
+            ? 'server.error'
+            : 'request.invalid';
+
+async function toApiError(response: Response) {
+  const body = await response.json().catch(() => null);
+  const problem = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+  const text = (value: unknown) => (typeof value === 'string' && value ? value : undefined);
+  return new ApiError(
+    text(problem.code) ?? codeForStatus(response.status),
+    text(problem.detail) ??
+      text(problem.title) ??
+      text(problem.error) ??
+      `No se pudo completar la operación (${response.status}).`,
+    response.status,
+    text(problem.traceId),
+    Array.isArray(problem.errors) ? (problem.errors as FieldError[]) : [],
+  );
+}
+
+export async function request<T>(url: string, init?: RequestInit): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(url, init);
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') throw error;
+    throw new ApiError('network', 'No hay conexión con el servidor.', 0);
+  }
+  if (!response.ok) throw await toApiError(response);
+  return response.json();
 }
 
 /** Only absolute http(s) links reach an href; anything else is dropped. */

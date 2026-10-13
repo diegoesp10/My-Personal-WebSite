@@ -1,7 +1,8 @@
 import { Suspense, useEffect, useRef } from 'react';
-import { Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { Navigate, Outlet, ScrollRestoration, useLocation } from 'react-router';
 import { usePortfolioState } from '../data/PortfolioContext';
 import { useReveal } from '../lib/useReveal';
+import { errorPath } from '../lib/errors';
 import { usePageMetadata } from '../lib/seo';
 import { sendVisit } from '../data/visits';
 import { BrandMark } from './Brand';
@@ -9,8 +10,8 @@ import { Footer } from './Footer';
 import { Header } from './Header';
 
 export function Layout() {
-  const { data, error, reload, canEdit } = usePortfolioState();
-  const { pathname } = useLocation();
+  const { data, error, canEdit } = usePortfolioState();
+  const { pathname, search } = useLocation();
   const main = useRef<HTMLElement>(null);
   const firstRender = useRef(true);
   useReveal(main, `${pathname}:${data ? 'ready' : 'loading'}`);
@@ -28,17 +29,8 @@ export function Layout() {
     main.current?.focus({ preventScroll: true });
   }, [pathname]);
 
-  if (error)
-    return (
-      <div className="status-screen">
-        <BrandMark />
-        <h1>No he podido cargar la web.</h1>
-        <p>{error}</p>
-        <button type="button" className="button" onClick={reload}>
-          Reintentar
-        </button>
-      </div>
-    );
+  // Without content no page can be shown: go to the error page, which can retry and come back here.
+  if (error) return <Navigate to={errorPath(error)} replace state={{ from: pathname + search }} />;
   if (!data)
     return (
       <div className="status-screen" aria-busy="true">

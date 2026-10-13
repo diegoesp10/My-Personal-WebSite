@@ -10,6 +10,7 @@ import ExperiencePage from './pages/ExperiencePage';
 import HomePage from './pages/HomePage';
 import JournalPage from './pages/JournalPage';
 import NotFoundPage from './pages/NotFoundPage';
+import ErrorPage, { RouteError } from './pages/ErrorPage';
 import ProjectPage from './pages/ProjectPage';
 import ProjectsPage from './pages/ProjectsPage';
 
@@ -23,20 +24,29 @@ const EditorPage = lazy(() => import('./editor/EditorPage'));
 const router = createBrowserRouter([
   {
     element: <Layout />,
+    errorElement: <RouteError />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: 'proyectos', element: <ProjectsPage /> },
-      { path: 'proyectos/:id', element: <ProjectPage /> },
-      { path: 'experiencia', element: <ExperiencePage /> },
-      { path: 'github', element: <GitHubPage /> },
-      { path: 'visitas', element: <VisitsPage /> },
-      { path: 'sobre-mi', element: <AboutPage /> },
-      { path: 'diario', element: <JournalPage /> },
-      { path: 'diario/:id', element: <EntryPage /> },
-      { path: 'contacto', element: <ContactPage /> },
-      { path: '*', element: <NotFoundPage /> },
+      {
+        // A page that fails while rendering shows the error page inside the layout.
+        errorElement: <RouteError embedded />,
+        children: [
+          { index: true, element: <HomePage /> },
+          { path: 'proyectos', element: <ProjectsPage /> },
+          { path: 'proyectos/:id', element: <ProjectPage /> },
+          { path: 'experiencia', element: <ExperiencePage /> },
+          { path: 'github', element: <GitHubPage /> },
+          { path: 'visitas', element: <VisitsPage /> },
+          { path: 'sobre-mi', element: <AboutPage /> },
+          { path: 'diario', element: <JournalPage /> },
+          { path: 'diario/:id', element: <EntryPage /> },
+          { path: 'contacto', element: <ContactPage /> },
+          { path: '*', element: <NotFoundPage /> },
+        ],
+      },
     ],
   },
+  // Outside the layout: it must work when the content cannot load.
+  { path: 'error', element: <ErrorPage /> },
   {
     path: 'editor',
     element: (
