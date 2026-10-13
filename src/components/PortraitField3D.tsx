@@ -336,10 +336,11 @@ export function PortraitField3D({
         { threshold: 0.2 },
       );
       assemble.observe(container);
-      // Scrolling the hero away scatters the figure.
+      // Scrolling the hero away scatters the figure, once half of it has left the screen: starting earlier broke
+      // it apart while it was still fully in view on tall windows.
       const scatter = ScrollTrigger.create({
         trigger: container,
-        start: 'center 35%',
+        start: 'center top',
         end: 'bottom top',
         scrub: 0.6,
         onUpdate: (self) => (state.scatter = self.progress * 0.7),
