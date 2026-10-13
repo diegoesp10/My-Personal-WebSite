@@ -10,7 +10,7 @@ export const artOptions: [string, string][] = [
   ['grid', 'Documentos e IA'],
   ['erp', 'Módulos de ERP'],
   ['xml', 'Proceso y XML'],
-  ['salon', 'Peluquería · agenda y gestión'],
+  ['salon', 'Peluquería · web, agenda y gestión'],
   ['blue', 'Azul geométrico'],
 ];
 
@@ -88,6 +88,10 @@ export function ProjectArt({ kind }: { kind: string }) {
           </strong>
         </div>
         <div className="salon-planner">
+          <div className="salon-address">
+            <i />
+            <span>{t.art.salonAddress}</span>
+          </div>
           <div className="salon-planner-heading">
             <i />
             <i />
