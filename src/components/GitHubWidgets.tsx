@@ -6,26 +6,30 @@ import type { GitHubCommit, LanguageShare } from '../lib/types';
 
 export function LanguageBar({ languages }: { languages: LanguageShare[] }) {
   const format = useFormat();
+  const { t } = useLanguage();
   if (!languages.length) return null;
+  // The aggregate bucket carries no name (the API groups the minor languages); its label is interface text.
+  // "Otros" is accepted too so the page is correct before the API that stops sending it is deployed.
+  const label = (name: string) => (name === '' || name === 'Otros' ? t.github.otherLanguages : name);
   return (
     <div className="language-bar">
       <div
         className="language-track"
         role="img"
-        aria-label={languages.map((l) => `${l.name} ${l.percentage}%`).join(', ')}
+        aria-label={languages.map((l) => `${label(l.name)} ${l.percentage}%`).join(', ')}
       >
         {languages.map((language) => (
           <span
-            key={language.name}
+            key={language.name || 'other'}
             style={{ width: `${language.percentage}%`, background: languageColor(language.name) }}
           />
         ))}
       </div>
       <ul className="language-legend">
         {languages.map((language) => (
-          <li key={language.name}>
+          <li key={language.name || 'other'}>
             <i style={{ background: languageColor(language.name) }} aria-hidden="true" />
-            {language.name} <span>{format.number(language.percentage)} %</span>
+            {label(language.name)} <span>{format.number(language.percentage)} %</span>
           </li>
         ))}
       </ul>
