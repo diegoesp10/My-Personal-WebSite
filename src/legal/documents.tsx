@@ -13,14 +13,6 @@ export type LegalDocument = {
   sections: LegalSection[];
 };
 
-/** Legal pages in navigation order, for the footer and the tabs. */
-export const legalLinks = [
-  { slug: 'aviso-legal', short: 'Aviso legal' },
-  { slug: 'privacidad', short: 'Privacidad' },
-  { slug: 'cookies', short: 'Cookies' },
-  { slug: 'terminos', short: 'Términos' },
-];
-
 /** Date of the last review of these texts (yyyy-MM-dd). Update it whenever a text changes. */
 export const LEGAL_UPDATED = '2026-10-13';
 

@@ -13,5 +13,18 @@ export default defineConfig({
     proxy: { '/api': api, '/uploads': api, '/sitemap.xml': api },
   },
   // Keep fonts as same-origin files: the CSP only permits font-src 'self'.
-  build: { outDir: 'dist', emptyOutDir: true, assetsInlineLimit: 0 },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    assetsInlineLimit: 0,
+    rollupOptions: {
+      output: {
+        // Libraries in their own files: a deploy that only changes the site keeps them cached.
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router'],
+          motion: ['gsap', '@gsap/react', 'lenis'],
+        },
+      },
+    },
+  },
 });

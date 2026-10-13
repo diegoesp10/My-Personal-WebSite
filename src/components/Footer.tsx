@@ -1,7 +1,7 @@
 import { Link } from './Link';
 import { ArrowUpRight, Settings2 } from 'lucide-react';
 import { openCookiePreferences } from '../consent/consent';
-import { legalLinks } from '../legal/documents';
+import { legalLinks } from '../legal/links';
 import { safeUrl } from '../lib/api';
 import type { Portfolio } from '../lib/types';
 import { BrandMark } from './Brand';
