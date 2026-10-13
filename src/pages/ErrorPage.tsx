@@ -18,7 +18,7 @@ export default function ErrorPage() {
 
   return (
     <ErrorScreen
-      code={query.get('code') || 'server.error'}
+      code={query.get('code') || 'server.unexpected'}
       status={status}
       reference={query.get('ref') || undefined}
       onRetry={() => {
