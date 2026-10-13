@@ -66,7 +66,7 @@ Construye la imagen y arranca el contenedor web en <http://127.0.0.1:8080> (`$en
 | --- | --- | --- |
 | `diego-portfolio-web:local` | `diego-portfolio-web` | `diego-portfolio-net` (externa, compartida con la API) |
 
-Nginx sirve `dist/` con caché inmutable para `/assets/`, `no-cache` para el HTML, compresión gzip y cabeceras de seguridad (CSP, `X-Frame-Options`, `Permissions-Policy`…) definidas en `nginx-security-headers.inc`. Inserta con SSI los metadatos de cada página (ver «SEO») y reenvía `/api/`, `/uploads/` y `/sitemap.xml` al contenedor `api`, resolviéndolo en cada petición: el contenedor web arranca aunque la API aún no esté lista. Se ejecuta sin root, con sistema de archivos de solo lectura y sin capacidades.
+Nginx sirve `dist/` con caché inmutable para `/assets/`, `no-store` para el HTML, compresión gzip y cabeceras de seguridad (CSP, `X-Frame-Options`, `Permissions-Policy`…) definidas en `nginx-security-headers.inc`. Inserta con SSI los metadatos de cada página (ver «SEO») y reenvía `/api/`, `/uploads/` y `/sitemap.xml` al contenedor `api`, resolviéndolo en cada petición: el contenedor web arranca aunque la API aún no esté lista. Se ejecuta sin root, con sistema de archivos de solo lectura y sin capacidades.
 
 ```powershell
 docker compose ps
@@ -111,3 +111,19 @@ El contenido incluye Azure y pipelines de CI/CD, uso diario de Claude y Codex y 
 ## CI/CD por SSH
 
 El workflow `.github/workflows/ci-cd.yml` comprueba las PR y publica una imagen al actualizar `main`. El despliegue a la VM espera aprobación en el entorno `production`, usa secretos de GitHub y conserva los datos. Configuración, credenciales y activación en [docs/CI-CD.md](docs/CI-CD.md).
+
+## CSP de Cloudflare y transiciones
+
+Nginx añade un nonce distinto por respuesta mediante `$request_id` (128 bits; la imagen incluye OpenSSL). Cloudflare lo lee de la cabecera CSP y lo asigna a sus scripts de JavaScript Detections. El HTML se sirve con `Cache-Control: no-store`; los recursos de `/assets/` conservan su caché inmutable. El nonce no se fija en Git ni se permite `unsafe-inline` para scripts. El backend mantiene su CSP estricta en las respuestas de la API.
+
+La cabecera se captura como una única capa durante la navegación; el fondo anterior permanece visible mientras entra la página nueva, evitando el destello negro y el texto invisible del enlace activo.
+
+Con los contenedores locales levantados, `npm run test:web` comprueba la CSP por respuesta, la caché del HTML y recursos, el SEO y la salud de la API.
+
+## Ficha técnica y diagnóstico local
+
+Los proyectos admiten `sections?: { title: string; text: string }[]`: la ficha pública presenta estos apartados y el editor permite crearlos, reordenarlos y modificarlos. La ficha del portfolio documenta el despliegue real en Azure y el proceso CI/CD de ambos repositorios.
+
+El cliente API envía `language` con español predeterminado y admite mensajes en inglés. GET usa query; los cuerpos JSON y multipart llevan el campo correspondiente. Las respuestas de error conservan código y correlación mediante `ApiRequestError`. El contrato está documentado en `docs/ERRORS-AND-LANGUAGE.md` del backend.
+
+En `/editor`, la pestaña Errores consulta los últimos registros y permite seleccionar español o inglés. Requiere la API local en Development y sus controles de acceso; el contenedor de Production rechaza esta consulta. El historial del servidor se revisa mediante una copia privada del volumen, nunca activando el editor público. El idioma afecta a los mensajes de operación y error, sin traducir automáticamente el contenido del portfolio.
