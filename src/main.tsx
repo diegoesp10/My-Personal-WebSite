@@ -14,6 +14,7 @@ import './styles/visits.css';
 import './styles/error.css';
 import './styles/legal.css';
 import './styles/motion.css';
+import './styles/motion-gsap.css';
 import './styles/editor.css';
 import './styles/print.css';
 

@@ -74,7 +74,12 @@ export function CookieConsent() {
         </section>
       )}
 
-      <dialog ref={dialog} className="cookie-dialog" aria-labelledby="cookie-dialog-title">
+      <dialog
+        ref={dialog}
+        className="cookie-dialog"
+        aria-labelledby="cookie-dialog-title"
+        data-lenis-prevent
+      >
         <form method="dialog" className="cookie-dialog-inner" onSubmit={() => save(choice)}>
           <header>
             <p className="eyebrow">Privacidad</p>
