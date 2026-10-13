@@ -1,10 +1,11 @@
+import type { CSSProperties } from 'react';
 import { CircleDot, Dumbbell, Gauge, Layers, RefreshCw, ShieldCheck } from 'lucide-react';
 import { ContactBand, PageHeader } from '../components/Blocks';
-import { PageMeta } from '../components/PageMeta';
-import { Sculpture } from '../components/ProjectArt';
+import { PortraitPlate } from '../components/DotPortrait';
 import { usePortfolio } from '../data/PortfolioContext';
 import { imageUrl } from '../lib/api';
 import { paragraphs } from '../lib/format';
+import { mobilityDetails } from '../lib/portfolio';
 
 const principles = [
   {
@@ -34,10 +35,10 @@ export default function AboutPage() {
   const p = data.profile;
   const portrait = imageUrl(p.portrait);
   const study = data.education[0];
+  const mobility = mobilityDetails(p);
 
   return (
     <>
-      <PageMeta title="Sobre mí" description={p.bio.split('\n')[0]} path="/sobre-mi" />
       <PageHeader
         eyebrow="Sobre mí"
         title={
@@ -48,7 +49,11 @@ export default function AboutPage() {
       />
       <section className="shell about-layout">
         <div className="about-visual">
-          {portrait ? <img src={portrait} alt={p.name} className="portrait" /> : <Sculpture />}
+          {portrait ? (
+            <img src={portrait} alt={p.name} className="portrait" />
+          ) : (
+            <PortraitPlate profile={p} tags={[]} caption />
+          )}
         </div>
         <div className="about-copy">
           <p className="about-lead">{p.intro}</p>
@@ -70,6 +75,12 @@ export default function AboutPage() {
                 <dd>{p.languages}</dd>
               </div>
             )}
+            {mobility.length > 0 && (
+              <div>
+                <dt>Movilidad</dt>
+                <dd>{mobility.join(' · ')}</dd>
+              </div>
+            )}
             {study && (
               <div>
                 <dt>Formación</dt>
@@ -87,8 +98,8 @@ export default function AboutPage() {
             Cuatro reglas que <em className="accent-serif">no negocio</em>
           </h2>
           <ul className="principles">
-            {principles.map(({ icon: Icon, title, text }) => (
-              <li key={title}>
+            {principles.map(({ icon: Icon, title, text }, index) => (
+              <li key={title} data-reveal style={{ '--i': index } as CSSProperties}>
                 <Icon size={22} strokeWidth={1.6} aria-hidden="true" />
                 <h3>{title}</h3>
                 <p>{text}</p>

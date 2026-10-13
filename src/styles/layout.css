@@ -17,6 +17,10 @@
   border-bottom-color: var(--line);
 }
 
+.site-header.is-open {
+  background: var(--bg);
+}
+
 .header-inner {
   display: flex;
   align-items: center;
@@ -62,6 +66,8 @@
 }
 
 .main-nav a {
+  position: relative;
+  isolation: isolate;
   padding: 7px 13px;
   border-radius: 999px;
   color: var(--muted);
@@ -78,7 +84,6 @@
 
 .main-nav a.active {
   color: var(--ink);
-  background: var(--bg-sunken);
 }
 
 .header-actions {
@@ -98,8 +103,11 @@
 }
 
 .mobile-menu {
-  position: fixed;
-  inset: var(--header-h) 0 0;
+  /* The header backdrop filter contains fixed descendants. Anchor the overlay to the sticky
+     header and give it the remaining viewport height explicitly, without changing page layout. */
+  position: absolute;
+  inset: 100% 0 auto;
+  height: calc(100dvh - var(--header-h));
   z-index: 49;
   display: flex;
   flex-direction: column;
@@ -107,6 +115,7 @@
   gap: 32px;
   padding: 24px var(--gutter) 32px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--bg);
   animation: menu-in 0.3s var(--ease);
 }
@@ -116,6 +125,7 @@
 }
 
 .mobile-menu nav {
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 }
@@ -134,6 +144,8 @@
 }
 
 .mobile-menu-footer {
+  flex-shrink: 0;
+  overflow-wrap: anywhere;
   display: grid;
   gap: 16px;
   color: var(--muted);
@@ -181,10 +193,6 @@
 }
 
 /* Page */
-.page {
-  animation: page-in 0.5s var(--ease);
-}
-
 .page-loading {
   min-height: 60vh;
 }

@@ -6,8 +6,13 @@ export const artOptions: [string, string][] = [
   ['wave', 'Onda de audio'],
   ['ledger', 'Libro contable'],
   ['grid', 'Documentos e IA'],
+  ['erp', 'Módulos de ERP'],
+  ['xml', 'Proceso y XML'],
+  ['salon', 'Peluquería · agenda y gestión'],
   ['blue', 'Azul geométrico'],
 ];
+
+const erpModules = ['Facturación', 'Inventario', 'Compras', 'Ventas', 'Contabilidad', 'Informes'];
 
 // Deterministic waveform: the same bars on every render.
 const wave = Array.from({ length: 44 }, (_, i) =>
@@ -15,6 +20,93 @@ const wave = Array.from({ length: 44 }, (_, i) =>
 );
 
 export function ProjectArt({ kind }: { kind: string }) {
+  if (kind === 'erp')
+    return (
+      <div className="art art-erp" aria-hidden="true">
+        <span className="art-caption">erp · módulos en producción</span>
+        <div className="erp-board">
+          {erpModules.map((module, index) => (
+            <div key={module} className={index === 0 ? 'is-active' : ''}>
+              <b>{module}</b>
+              <i style={{ width: `${48 + ((index * 17) % 45)}%` }} />
+              <i style={{ width: `${30 + ((index * 29) % 55)}%` }} />
+            </div>
+          ))}
+        </div>
+        <p className="erp-query">
+          <span>SELECT</span> … <span>FROM</span> facturas <span>WHERE</span> … <em>0,8 s</em>
+        </p>
+      </div>
+    );
+  if (kind === 'xml')
+    return (
+      <div className="art art-xml" aria-hidden="true">
+        <span className="art-caption">proceso asíncrono · catálogo</span>
+        <div className="xml-queue">
+          <p>
+            <i className="is-done" /> proceso 01
+          </p>
+          <p>
+            <i className="is-done" /> proceso 02
+          </p>
+          <p>
+            <i className="is-running" /> proceso 03
+          </p>
+        </div>
+        <pre className="xml-code">
+          <span className="tag">&lt;catalogo&gt;</span>
+          {'\n  '}
+          <span className="tag">&lt;producto</span> <span className="attr">ref</span>=
+          <span className="value">"…"</span>
+          <span className="tag">&gt;</span>
+          {'\n    '}
+          <span className="tag">&lt;familia&gt;</span>…<span className="tag">&lt;/familia&gt;</span>
+          {'\n    '}
+          <span className="tag">&lt;medidas&gt;</span>…<span className="tag">&lt;/medidas&gt;</span>
+          {'\n  '}
+          <span className="tag">&lt;/producto&gt;</span>
+          {'\n'}
+          <span className="tag">&lt;/catalogo&gt;</span>
+        </pre>
+      </div>
+    );
+  if (kind === 'salon')
+    return (
+      <div className="art art-salon" aria-hidden="true">
+        <span className="art-caption">agenda · gestión del salón</span>
+        <div className="salon-mark">
+          <svg viewBox="0 0 120 120" className="salon-leaf">
+            <path d="M30 100C15 47 36 17 94 18c10 57-13 81-64 82Z" />
+            <path d="m30 100 54-70M49 72l-9-22m23 7 21-4" />
+          </svg>
+          <strong>
+            L<span>.</span>
+          </strong>
+        </div>
+        <div className="salon-planner">
+          <div className="salon-planner-heading">
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className="salon-calendar">
+            {Array.from({ length: 28 }, (_, index) => (
+              <i key={index} className={[4, 9, 10, 17, 23].includes(index) ? 'is-booked' : ''} />
+            ))}
+          </div>
+          <div className="salon-appointment">
+            <i />
+            <span />
+            <b />
+          </div>
+          <div className="salon-appointment">
+            <i />
+            <span />
+            <b />
+          </div>
+        </div>
+      </div>
+    );
   if (kind === 'ink')
     return (
       <div className="art art-ink" aria-hidden="true">

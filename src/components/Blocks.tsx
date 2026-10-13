@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
-import { ArrowRight, ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
-import { safeUrl } from '../lib/api';
+import { Link } from './Link';
+import { ArrowRight, ArrowUpRight, Github, Linkedin, Mail, Phone } from 'lucide-react';
+import { safeUrl, telUrl } from '../lib/api';
 import type { Profile } from '../lib/types';
 
 export function PageHeader({
@@ -37,7 +37,7 @@ export function SectionHeading({
   id?: string;
 }) {
   return (
-    <div className="section-heading">
+    <div className="section-heading" data-reveal>
       <div>
         <p className="eyebrow">{eyebrow}</p>
         <h2 id={id}>{title}</h2>
@@ -67,19 +67,25 @@ export function Tags({ items, limit }: { items: string[]; limit?: number }) {
 }
 
 export function ContactBand({ profile }: { profile: Profile }) {
+  const phone = telUrl(profile.phone);
   return (
     <section className="contact-band" aria-labelledby="contact-band-title">
-      <div className="shell contact-band-inner">
+      <div className="shell contact-band-inner" data-reveal>
         <div>
-          <p className="eyebrow">Siguiente paso</p>
+          <p className="eyebrow">Contacto</p>
           <h2 id="contact-band-title">
-            ¿Hablamos de tu <em className="accent-serif">próximo backend?</em>
+            ¿Tu proyecto necesita <em className="accent-serif">un buen backend?</em>
           </h2>
         </div>
         <div className="contact-band-actions">
           {profile.email && (
             <a className="button button-light" href={`mailto:${profile.email}`}>
               <Mail size={17} /> Escríbeme
+            </a>
+          )}
+          {phone && (
+            <a className="button button-outline-dark" href={phone}>
+              <Phone size={17} /> Llámame
             </a>
           )}
           {safeUrl(profile.linkedin) && (
@@ -92,9 +98,6 @@ export function ContactBand({ profile }: { profile: Profile }) {
               <Linkedin size={17} /> LinkedIn <ArrowUpRight size={15} />
             </a>
           )}
-          <Link className="arrow-link" to="/contacto">
-            Más formas de contacto <ArrowRight size={16} />
-          </Link>
         </div>
       </div>
     </section>

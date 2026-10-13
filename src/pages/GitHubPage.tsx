@@ -1,8 +1,7 @@
-import { Link } from 'react-router';
+import { Link } from '../components/Link';
 import { ArrowRight, ArrowUpRight, Archive, GitFork, Github, Star } from 'lucide-react';
 import { PageHeader } from '../components/Blocks';
 import { CommitList, LanguageBar } from '../components/GitHubWidgets';
-import { PageMeta } from '../components/PageMeta';
 import { usePortfolio } from '../data/PortfolioContext';
 import { languageColor, useGitHub } from '../data/useGitHub';
 import { repositoryKey, safeUrl } from '../lib/api';
@@ -22,11 +21,6 @@ export default function GitHubPage() {
 
   return (
     <>
-      <PageMeta
-        title="GitHub"
-        description="Repositorios públicos, lenguajes y commits recientes de Diego Espina en GitHub."
-        path="/github"
-      />
       <PageHeader
         eyebrow="Código abierto"
         title={

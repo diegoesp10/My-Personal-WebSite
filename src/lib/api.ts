@@ -14,6 +14,16 @@ export const safeUrl = (url: string) => (/^https?:\/\//i.test(url) ? url : undef
 export const imageUrl = (url: string) =>
   /^\/uploads\/[a-f0-9]+\.(png|jpg|webp)$/.test(url) ? url : undefined;
 
+/** tel: link for a phone number already validated by the API (+34 600 000 000 → tel:+34600000000). */
+export const telUrl = (phone: string) => {
+  const digits = phone.replace(/[^\d+]/g, '');
+  return /^\+?\d{6,15}$/.test(digits) ? `tel:${digits}` : undefined;
+};
+
+/** Valid CSS identifier for view-transition-name, derived from an item id. */
+export const transitionName = (prefix: string, id: string) =>
+  `${prefix}-${id.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+
 export const isGitHubUrl = (url: string) => /^https:\/\/github\.com\//i.test(url);
 
 /** Normalised https://github.com/owner/repo, used to match repositories with portfolio projects. */

@@ -4,3 +4,5 @@ dist/
 .env
 .env.*
 *.log
+# Local Claude Code preview settings
+.claude/

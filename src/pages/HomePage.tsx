@@ -1,14 +1,17 @@
-import { Link } from 'react-router';
+import type { CSSProperties } from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { ContactBand, SectionHeading, SocialLinks, Tags } from '../components/Blocks';
+import { PortraitPlate } from '../components/DotPortrait';
 import { CommitList, LanguageBar } from '../components/GitHubWidgets';
-import { PageMeta } from '../components/PageMeta';
+import { Link } from '../components/Link';
 import { PerfCard } from '../components/PerfCard';
 import { ProjectCard } from '../components/ProjectCard';
 import { usePortfolio } from '../data/PortfolioContext';
 import { useGitHub } from '../data/useGitHub';
-import { emphasis, formatPeriod, plain } from '../lib/format';
 import { safeUrl } from '../lib/api';
+import { emphasis, formatPeriod, pad, paragraphs } from '../lib/format';
+
+const delay = (step: number) => ({ '--d': step }) as CSSProperties;
 
 export default function HomePage() {
   const data = usePortfolio();
@@ -16,58 +19,78 @@ export default function HomePage() {
   const featured = data.projects.filter((project) => project.featured);
   const shown = (featured.length ? featured : data.projects).slice(0, 4);
   const stack = [...new Set(data.skills.flatMap((skill) => skill.tags))].slice(0, 18);
+  const signature = data.skills
+    .map((skill) => skill.tags[0])
+    .filter(Boolean)
+    .slice(0, 4);
 
   return (
     <>
-      <PageMeta description={plain(p.intro)} path="/" />
       <section className="hero shell" aria-labelledby="hero-title">
         <div className="hero-copy">
-          {p.availability && (
-            <p className="status-pill">
-              <span className="pulse" aria-hidden="true" />
-              {p.availability}
-            </p>
-          )}
-          <p className="eyebrow">
+          <p className="eyebrow hero-rise" style={delay(0)}>
             {p.role}
             {p.location && ` · ${p.location}`}
           </p>
-          <h1 id="hero-title" className="hero-title">
+          <h1 id="hero-title" className="hero-title hero-rise" style={delay(1)}>
             {emphasis(p.headline || p.name)}
           </h1>
-          <p className="hero-lead">{p.intro}</p>
-          <div className="hero-actions">
-            <Link className="button" to="/proyectos">
-              Ver proyectos <ArrowRight size={17} />
+          <p className="hero-lead hero-rise" style={delay(2)}>
+            {p.intro}
+          </p>
+          <div className="hero-actions hero-rise" style={delay(3)}>
+            <Link className="button button-accent" to="/contacto">
+              Hablemos <ArrowRight size={17} />
             </Link>
-            <Link className="button button-ghost" to="/experiencia">
-              CV online
+            <Link className="button button-ghost" to="/proyectos">
+              Ver proyectos
             </Link>
             <SocialLinks profile={p} />
           </div>
+          {p.availability && (
+            <p className="hero-meta hero-rise" style={delay(4)}>
+              <span>Modalidad</span> {p.availability}
+            </p>
+          )}
         </div>
-        <div className="hero-visual">
-          <PerfCard />
+        <div className="hero-visual hero-rise" style={delay(2)}>
+          <PortraitPlate profile={p} tags={signature} />
         </div>
       </section>
 
-      {data.metrics.length > 0 && (
-        <section className="shell" aria-label="En cifras">
-          <dl className="metrics">
-            {data.metrics.map((metric) => (
-              <div key={metric.id}>
-                <dt>{metric.label}</dt>
-                <dd>{metric.value}</dd>
-              </div>
+      <section className="shell section" aria-labelledby="home-expertise">
+        <SectionHeading
+          id="home-expertise"
+          eyebrow="01 · Especialidad"
+          title={
+            <>
+              Backend que se mide, <em className="accent-serif">no que se supone</em>
+            </>
+          }
+        />
+        <div className="expertise">
+          <div className="expertise-case" data-reveal>
+            <PerfCard />
+            {p.bio && <p className="muted">{paragraphs(p.bio)[0]}</p>}
+          </div>
+          <ol className="expertise-list">
+            {data.skills.map((skill, index) => (
+              <li key={skill.id} data-reveal style={{ '--i': index } as CSSProperties}>
+                <span className="expertise-index">{pad(index + 1)}</span>
+                <div>
+                  <h3>{skill.title}</h3>
+                  {skill.description && <p>{skill.description}</p>}
+                </div>
+              </li>
             ))}
-          </dl>
-        </section>
-      )}
+          </ol>
+        </div>
+      </section>
 
-      <section className="shell section" aria-labelledby="home-projects">
+      <section className="shell section section-flush-top" aria-labelledby="home-projects">
         <SectionHeading
           id="home-projects"
-          eyebrow="01 · Proyectos"
+          eyebrow="02 · Proyectos"
           title={
             <>
               Trabajo <em className="accent-serif">seleccionado</em>
@@ -87,21 +110,20 @@ export default function HomePage() {
           <div>
             <SectionHeading
               id="home-experience"
-              eyebrow="02 · Trayectoria"
+              eyebrow="03 · Trayectoria"
               title={
                 <>
                   Dónde he <em className="accent-serif">trabajado</em>
                 </>
               }
             />
-            <p className="muted split-lead">{p.bio.split('\n')[0]}</p>
-            <Link className="arrow-link" to="/experiencia">
+            <Link className="arrow-link" to="/experiencia" data-reveal>
               Experiencia completa y CV <ArrowRight size={16} />
             </Link>
           </div>
           <ol className="role-list">
-            {data.experience.map((role) => (
-              <li key={role.id}>
+            {data.experience.map((role, index) => (
+              <li key={role.id} data-reveal style={{ '--i': index } as CSSProperties}>
                 <span className="role-period">{formatPeriod(role.start, role.end)}</span>
                 <strong>{role.role}</strong>
                 <span>{role.company}</span>
@@ -110,7 +132,7 @@ export default function HomePage() {
           </ol>
         </div>
         {stack.length > 0 && (
-          <div className="shell stack-strip">
+          <div className="shell stack-strip" data-reveal>
             <p className="eyebrow">Stack habitual</p>
             <Tags items={stack} />
           </div>
@@ -130,7 +152,7 @@ function GitHubTeaser({ github }: { github?: string }) {
     <section className="shell section" aria-labelledby="home-github">
       <SectionHeading
         id="home-github"
-        eyebrow="03 · En GitHub"
+        eyebrow="04 · En GitHub"
         title={
           <>
             Lo que estoy <em className="accent-serif">construyendo</em>
@@ -151,11 +173,11 @@ function GitHubTeaser({ github }: { github?: string }) {
       )}
       {activity?.available && (
         <div className="github-teaser">
-          <div>
+          <div data-reveal>
             <h3 className="mini-title">Últimos commits</h3>
             <CommitList commits={activity.recentCommits.slice(0, 4)} />
           </div>
-          <div>
+          <div data-reveal style={{ '--i': 1 } as CSSProperties}>
             <h3 className="mini-title">Lenguajes en mis repositorios públicos</h3>
             <LanguageBar languages={activity.languages} />
           </div>

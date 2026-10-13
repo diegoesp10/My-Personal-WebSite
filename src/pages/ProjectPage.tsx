@@ -1,11 +1,12 @@
-import { Link, useParams } from 'react-router';
-import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Github, Globe } from 'lucide-react';
+import { useParams } from 'react-router';
+import { Link } from '../components/Link';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Building2, Check, Github, Globe } from 'lucide-react';
 import { ContactBand, Tags } from '../components/Blocks';
-import { PageMeta } from '../components/PageMeta';
 import { ProjectVisual } from '../components/ProjectCard';
 import { usePortfolio } from '../data/PortfolioContext';
 import { isGitHubUrl, safeUrl } from '../lib/api';
-import { paragraphs } from '../lib/format';
+import { formatPeriod, paragraphs } from '../lib/format';
+import { companyName, positionAnchor, positionOf } from '../lib/portfolio';
 import NotFoundPage from './NotFoundPage';
 
 export default function ProjectPage() {
@@ -19,7 +20,9 @@ export default function ProjectPage() {
   const next = data.projects[index + 1];
   const site = safeUrl(project.url);
   const links = project.links.filter((link) => safeUrl(link.url));
+  const position = positionOf(data, project);
   const facts: [string, string][] = [
+    ['Empresa', position ? companyName(position.company) : ''],
     ['Categoría', project.category],
     ['Año', project.year],
     ['Estado', project.status],
@@ -27,11 +30,6 @@ export default function ProjectPage() {
 
   return (
     <>
-      <PageMeta
-        title={project.title}
-        description={project.description}
-        path={`/proyectos/${project.id}`}
-      />
       <article>
         <header className="shell project-header">
           <nav className="breadcrumb" aria-label="Ruta">
@@ -40,6 +38,7 @@ export default function ProjectPage() {
             </Link>
           </nav>
           <p className="eyebrow">
+            {position && `Proyecto en ${companyName(position.company)} · `}
             {project.category}
             {project.status && ` · ${project.status}`}
           </p>
@@ -74,6 +73,19 @@ export default function ProjectPage() {
 
         <div className="shell project-body">
           <div className="prose">
+            {position && (
+              <aside className="context-note">
+                <Building2 size={18} aria-hidden="true" />
+                <p>
+                  Trabajo realizado en <strong>{position.company}</strong> como {position.role} (
+                  {formatPeriod(position.start, position.end)}). El producto y el código pertenecen
+                  a la empresa y a sus clientes; aquí describo mi papel.{' '}
+                  <Link className="inline-link" to={`/experiencia#${positionAnchor(position.id)}`}>
+                    Ver esa etapa en mi experiencia
+                  </Link>
+                </p>
+              </aside>
+            )}
             <h2 className="mini-title">Sobre el proyecto</h2>
             {paragraphs(project.details).map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>

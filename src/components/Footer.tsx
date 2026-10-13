@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link } from './Link';
 import { ArrowUpRight, Settings2 } from 'lucide-react';
 import { safeUrl } from '../lib/api';
 import type { Portfolio } from '../lib/types';
@@ -72,6 +72,9 @@ export function Footer({ data, canEdit }: { data: Portfolio; canEdit: boolean })
           <span>
             © {new Date().getFullYear()} {p.name}
           </span>
+          <Link to="/visitas" className="footer-live">
+            <span className="pulse" aria-hidden="true" /> Mapa de visitas en directo
+          </Link>
           <span>
             Hecho con ASP.NET Core y React
             {thisSite && (

@@ -1,7 +1,6 @@
-import { Link } from 'react-router';
+import { Link } from '../components/Link';
 import { ArrowUpRight } from 'lucide-react';
 import { PageHeader } from '../components/Blocks';
-import { PageMeta } from '../components/PageMeta';
 import { usePortfolio } from '../data/PortfolioContext';
 import { formatDate, paragraphs } from '../lib/format';
 
@@ -13,11 +12,6 @@ export default function JournalPage() {
   const entries = sortedEntries(data.entries);
   return (
     <>
-      <PageMeta
-        title="Diario"
-        description="Notas de Diego Espina sobre lo que construye, lo que aprende y lo que vive fuera del código."
-        path="/diario"
-      />
       <PageHeader
         eyebrow="Diario"
         title={

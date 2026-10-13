@@ -8,7 +8,8 @@ import { imageUrl, request } from '../lib/api';
 import type { Portfolio, Profile } from '../lib/types';
 import { Field, ListField } from './fields';
 
-type Collection = 'projects' | 'experience' | 'education' | 'skills' | 'entries' | 'metrics';
+// Metrics stay in the API contract but are not shown on the site, so they are not edited here.
+type Collection = 'projects' | 'experience' | 'education' | 'skills' | 'entries';
 type Tab = 'profile' | Collection;
 
 const tabs: [Tab, string][] = [
@@ -18,7 +19,6 @@ const tabs: [Tab, string][] = [
   ['education', 'Formación'],
   ['skills', 'Competencias'],
   ['entries', 'Diario'],
-  ['metrics', 'Cifras'],
 ];
 
 const hints: Record<Collection, string> = {
@@ -28,7 +28,6 @@ const hints: Record<Collection, string> = {
   education: 'Títulos y cursos. Las fechas pueden ser un año (2023) o un mes (2023-06).',
   skills: 'Cada grupo aparece en el CV online con sus etiquetas.',
   entries: 'Las entradas se ordenan por fecha. Separa los párrafos con una línea en blanco.',
-  metrics: 'Cifras reales con contexto. Si no hay ninguna, la sección no aparece.',
 };
 
 const today = () =>
@@ -151,7 +150,7 @@ function Editor({
 
   const profileField = (
     label: string,
-    key: keyof Profile,
+    key: Exclude<keyof Profile, 'hasDrivingLicense' | 'hasOwnVehicle'>,
     options: { multiline?: boolean; type?: string; hint?: string } = {},
   ) => (
     <Field
@@ -211,6 +210,7 @@ function Editor({
           featured: false,
           highlights: [],
           links: [],
+          experienceId: '',
         });
       if (kind === 'experience')
         d.experience.unshift({
@@ -243,7 +243,6 @@ function Editor({
           text: '',
         });
       if (kind === 'skills') d.skills.push({ id, title: 'Nuevo grupo', description: '', tags: [] });
-      if (kind === 'metrics') d.metrics.push({ id, value: '', label: '' });
     });
   }
 
@@ -376,7 +375,9 @@ function Editor({
                   {profileField('Titular de la portada', 'headline', {
                     hint: 'Rodea con asteriscos el texto que quieras en cursiva: Backends que *aguantan*.',
                   })}
-                  {profileField('Disponibilidad', 'availability')}
+                  {profileField('Modalidad de trabajo', 'availability', {
+                    hint: 'Por ejemplo: Remoto, híbrido o presencial.',
+                  })}
                   {profileField('Presentación breve', 'intro', { multiline: true })}
                   {profileField('Sobre mí', 'bio', {
                     multiline: true,
@@ -385,7 +386,30 @@ function Editor({
                   {profileField('Fuera de la pantalla', 'personal', { multiline: true })}
                   {profileField('Idiomas', 'languages')}
                   {profileField('Ubicación', 'location')}
+                  {(
+                    [
+                      ['hasDrivingLicense', 'Carnet de conducir'],
+                      ['hasOwnVehicle', 'Vehículo propio'],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label key={key} className="check-field">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(draft.profile[key])}
+                        onChange={(e) =>
+                          change((d) => {
+                            d.profile[key] = e.target.checked;
+                          })
+                        }
+                      />
+                      {label}
+                    </label>
+                  ))}
                   {profileField('Correo de contacto', 'email', { type: 'email' })}
+                  {profileField('Teléfono de contacto', 'phone', {
+                    type: 'tel',
+                    hint: 'Visible en la web. Déjalo vacío para no mostrarlo.',
+                  })}
                   {profileField('GitHub', 'github', { type: 'url' })}
                   {profileField('LinkedIn', 'linkedin', { type: 'url' })}
                 </div>
@@ -485,6 +509,22 @@ function Editor({
                         {artOptions.map(([value, label]) => (
                           <option key={value} value={value}>
                             {label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="form-field">
+                      <span>Hecho en (etapa profesional)</span>
+                      <select
+                        value={p.experienceId}
+                        onChange={(e) =>
+                          change((d) => void (d.projects[i].experienceId = e.target.value))
+                        }
+                      >
+                        <option value="">Proyecto propio</option>
+                        {draft.experience.map((x) => (
+                          <option key={x.id} value={x.id}>
+                            {x.company}
                           </option>
                         ))}
                       </select>
@@ -709,25 +749,6 @@ function Editor({
                       label="Etiquetas (separadas por comas)"
                       value={s.tags}
                       onChange={(v) => change((d) => void (d.skills[i].tags = v))}
-                    />
-                  </div>
-                </article>
-              ))}
-
-            {tab === 'metrics' &&
-              draft.metrics.map((m, i) => (
-                <article key={m.id} className="editor-card">
-                  {cardHeading('metrics', i, m.value || `Cifra ${i + 1}`, draft.metrics.length)}
-                  <div className="form-grid">
-                    <Field
-                      label="Cifra"
-                      value={m.value}
-                      onChange={(v) => change((d) => void (d.metrics[i].value = v))}
-                    />
-                    <Field
-                      label="Contexto"
-                      value={m.label}
-                      onChange={(v) => change((d) => void (d.metrics[i].label = v))}
                     />
                   </div>
                 </article>

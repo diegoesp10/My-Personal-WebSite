@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
+import { Link, NavLink } from './Link';
 import { ArrowUpRight, Github, Linkedin, Menu, X } from 'lucide-react';
-import { safeUrl } from '../lib/api';
+import { safeUrl, telUrl } from '../lib/api';
 import type { Profile } from '../lib/types';
 import { BrandMark } from './Brand';
 import { ThemeToggle } from './ThemeToggle';
@@ -10,6 +11,7 @@ export const navigation: [string, string][] = [
   ['/proyectos', 'Proyectos'],
   ['/experiencia', 'Experiencia'],
   ['/github', 'GitHub'],
+  ['/visitas', 'Visitas'],
   ['/sobre-mi', 'Sobre mí'],
   ['/diario', 'Diario'],
 ];
@@ -18,6 +20,14 @@ export function Header({ profile }: { profile: Profile }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 901px)');
+    const closeOnDesktop = () => {
+      if (desktop.matches) setOpen(false);
+    };
+    desktop.addEventListener('change', closeOnDesktop);
+    return () => desktop.removeEventListener('change', closeOnDesktop);
+  }, []);
   const shortName = profile.name.split(' ').slice(0, 2).join(' ');
 
   useEffect(() => setOpen(false), [pathname]);
@@ -28,11 +38,14 @@ export function Header({ profile }: { profile: Profile }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   useEffect(() => {
-    document.body.classList.toggle('menu-open', open);
     if (!open) return;
+    document.body.classList.add('menu-open');
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    return () => {
+      document.body.classList.remove('menu-open');
+      window.removeEventListener('keydown', onKey);
+    };
   }, [open]);
 
   return (
@@ -43,9 +56,17 @@ export function Header({ profile }: { profile: Profile }) {
           <span className="brand-name">{shortName}</span>
         </Link>
         <nav className="main-nav" aria-label="Principal">
-          {navigation.map(([to, label]) => (
+          {navigation.map(([to, label], index) => (
             <NavLink key={to} to={to}>
-              {label}
+              {({ isActive }) => (
+                <>
+                  {/* Shared view-transition name: the pill glides to the new section. */}
+                  {isActive && <span className="nav-pill" aria-hidden="true" />}
+                  <span className="nav-label" style={{ viewTransitionName: `nav-label-${index}` }}>
+                    {label}
+                  </span>
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -80,6 +101,7 @@ export function Header({ profile }: { profile: Profile }) {
         </nav>
         <div className="mobile-menu-footer">
           {profile.email && <a href={`mailto:${profile.email}`}>{profile.email}</a>}
+          {telUrl(profile.phone) && <a href={telUrl(profile.phone)}>{profile.phone}</a>}
           <div className="social-row">
             {safeUrl(profile.github) && (
               <a href={safeUrl(profile.github)} target="_blank" rel="noreferrer">

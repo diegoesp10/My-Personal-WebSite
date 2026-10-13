@@ -1,6 +1,5 @@
 import { useSearchParams } from 'react-router';
 import { PageHeader } from '../components/Blocks';
-import { PageMeta } from '../components/PageMeta';
 import { ProjectCard } from '../components/ProjectCard';
 import { usePortfolio } from '../data/PortfolioContext';
 
@@ -19,11 +18,6 @@ export default function ProjectsPage() {
 
   return (
     <>
-      <PageMeta
-        title="Proyectos"
-        description="Proyectos de Diego Espina: backends .NET, aplicaciones full stack y webs en producción, con enlaces al código."
-        path="/proyectos"
-      />
       <PageHeader
         eyebrow={`Proyectos · ${String(data.projects.length).padStart(2, '0')}`}
         title={
@@ -41,9 +35,17 @@ export default function ProjectsPage() {
               type="button"
               className={filter === category ? 'is-active' : ''}
               aria-pressed={filter === category}
-              onClick={() =>
-                setParams(category === all ? {} : { categoria: category }, { replace: true })
-              }
+              onClick={() => {
+                // Only the cards animate on a filter change, not the whole page (styles/motion.css).
+                const root = document.documentElement;
+                root.classList.add('vt-filter');
+                setTimeout(() => root.classList.remove('vt-filter'), 900);
+                setParams(category === all ? {} : { categoria: category }, {
+                  replace: true,
+                  preventScrollReset: true,
+                  viewTransition: true,
+                });
+              }}
             >
               {category}
               <span>
@@ -56,7 +58,7 @@ export default function ProjectsPage() {
         </div>
         <div className="project-grid">
           {projects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
+            <ProjectCard key={project.id} project={project} index={index} reflow />
           ))}
         </div>
         {!projects.length && <p className="empty">Los próximos proyectos aparecerán aquí.</p>}

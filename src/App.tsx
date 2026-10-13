@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router';
+import { createBrowserRouter } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
 import { Layout } from './components/Layout';
 import { PortfolioProvider } from './data/PortfolioContext';
 import AboutPage from './pages/AboutPage';
@@ -14,31 +15,42 @@ import ProjectsPage from './pages/ProjectsPage';
 
 // Rarely visited: loaded on demand.
 const GitHubPage = lazy(() => import('./pages/GitHubPage'));
+const VisitsPage = lazy(() => import('./pages/VisitsPage'));
 const EditorPage = lazy(() => import('./editor/EditorPage'));
 
+// Data router: required for view transitions between pages.
 // Public routes are also listed in the API sitemap (Portfolio.Application/Sitemaps/SitemapService.cs).
+const router = createBrowserRouter([
+  {
+    element: <Layout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: 'proyectos', element: <ProjectsPage /> },
+      { path: 'proyectos/:id', element: <ProjectPage /> },
+      { path: 'experiencia', element: <ExperiencePage /> },
+      { path: 'github', element: <GitHubPage /> },
+      { path: 'visitas', element: <VisitsPage /> },
+      { path: 'sobre-mi', element: <AboutPage /> },
+      { path: 'diario', element: <JournalPage /> },
+      { path: 'diario/:id', element: <EntryPage /> },
+      { path: 'contacto', element: <ContactPage /> },
+      { path: '*', element: <NotFoundPage /> },
+    ],
+  },
+  {
+    path: 'editor',
+    element: (
+      <Suspense fallback={<div className="status-screen" aria-busy="true" />}>
+        <EditorPage />
+      </Suspense>
+    ),
+  },
+]);
+
 export default function App() {
   return (
-    <BrowserRouter>
-      <PortfolioProvider>
-        <Suspense fallback={<div className="status-screen" aria-busy="true" />}>
-          <Routes>
-            <Route element={<Layout />}>
-              <Route index element={<HomePage />} />
-              <Route path="proyectos" element={<ProjectsPage />} />
-              <Route path="proyectos/:id" element={<ProjectPage />} />
-              <Route path="experiencia" element={<ExperiencePage />} />
-              <Route path="github" element={<GitHubPage />} />
-              <Route path="sobre-mi" element={<AboutPage />} />
-              <Route path="diario" element={<JournalPage />} />
-              <Route path="diario/:id" element={<EntryPage />} />
-              <Route path="contacto" element={<ContactPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-            <Route path="editor" element={<EditorPage />} />
-          </Routes>
-        </Suspense>
-      </PortfolioProvider>
-    </BrowserRouter>
+    <PortfolioProvider>
+      <RouterProvider router={router} />
+    </PortfolioProvider>
   );
 }

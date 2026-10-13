@@ -11,5 +11,6 @@ export default defineConfig({
     strictPort: true,
     proxy: { '/api': api, '/uploads': api, '/sitemap.xml': api },
   },
-  build: { outDir: 'dist', emptyOutDir: true },
+  // Keep fonts as same-origin files: the CSP only permits font-src 'self'.
+  build: { outDir: 'dist', emptyOutDir: true, assetsInlineLimit: 0 },
 });

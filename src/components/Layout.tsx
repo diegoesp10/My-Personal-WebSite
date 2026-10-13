@@ -1,6 +1,9 @@
 import { Suspense, useEffect, useRef } from 'react';
-import { Outlet, useLocation } from 'react-router';
+import { Outlet, ScrollRestoration, useLocation } from 'react-router';
 import { usePortfolioState } from '../data/PortfolioContext';
+import { useReveal } from '../lib/useReveal';
+import { usePageMetadata } from '../lib/seo';
+import { sendVisit } from '../data/visits';
 import { BrandMark } from './Brand';
 import { Footer } from './Footer';
 import { Header } from './Header';
@@ -10,14 +13,18 @@ export function Layout() {
   const { pathname } = useLocation();
   const main = useRef<HTMLElement>(null);
   const firstRender = useRef(true);
+  useReveal(main, `${pathname}:${data ? 'ready' : 'loading'}`);
 
-  // New page: start at the top and move focus to the content, as a full page load would.
+  useEffect(() => sendVisit(pathname), [pathname]);
+  usePageMetadata(pathname);
+
+  // New page: move focus to the content, as a full page load would. ScrollRestoration handles scrolling.
   useEffect(() => {
-    window.scrollTo(0, 0);
     if (firstRender.current) {
       firstRender.current = false;
       return;
     }
+    document.documentElement.classList.remove('first-visit');
     main.current?.focus({ preventScroll: true });
   }, [pathname]);
 
@@ -42,6 +49,7 @@ export function Layout() {
 
   return (
     <>
+      <ScrollRestoration />
       <a className="skip-link" href="#contenido">
         Ir al contenido
       </a>

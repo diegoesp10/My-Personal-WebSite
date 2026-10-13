@@ -9,7 +9,10 @@ export type Profile = {
   location: string;
   availability: string;
   languages: string;
+  hasDrivingLicense: boolean;
+  hasOwnVehicle: boolean;
   email: string;
+  phone: string;
   github: string;
   linkedin: string;
   portrait: string;
@@ -30,6 +33,8 @@ export type Project = {
   featured: boolean;
   highlights: string[];
   links: ProjectLink[];
+  /** Id of the position (experience) in which it was done; empty for personal projects. */
+  experienceId: string;
 };
 export type Experience = {
   id: string;
@@ -104,4 +109,45 @@ export type GitHubActivity = {
   repositories: GitHubRepository[];
   recentCommits: GitHubCommit[];
   languages: LanguageShare[];
+};
+
+export type DailyVisits = { date: string; visits: number; visitors: number };
+export type VisitLocation = {
+  country: string;
+  city: string;
+  latitude: number | null;
+  longitude: number | null;
+  visits: number;
+  visitors: number;
+  lastSeen: string;
+};
+export type NamedCount = { name: string; count: number };
+export type RecentVisit = { country: string; city: string; path: string; at: string };
+export type VisitorSummary = {
+  enabled: boolean;
+  since: string | null;
+  visits: number;
+  visitors: number;
+  online: number;
+  today: DailyVisits | null;
+  days: DailyVisits[];
+  locations: VisitLocation[];
+  countries: NamedCount[];
+  pages: NamedCount[];
+  referrers: NamedCount[];
+  recent: RecentVisit[];
+};
+
+/** Search and social metadata of a page (GET /api/seo/page). `url` is the canonical address; null when not indexed. */
+export type PageMetadata = {
+  title: string;
+  description: string;
+  url: string | null;
+  image: string;
+  imageAlt: string;
+  type: string;
+  indexable: boolean;
+  siteName: string;
+  published: string | null;
+  structuredData: Record<string, unknown> | null;
 };

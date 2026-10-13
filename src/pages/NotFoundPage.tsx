@@ -1,12 +1,10 @@
-import { Link } from 'react-router';
+import { Link } from '../components/Link';
 import { ArrowRight } from 'lucide-react';
-import { PageMeta } from '../components/PageMeta';
 import { Sculpture } from '../components/ProjectArt';
 
 export default function NotFoundPage({ what = 'página' }: { what?: string }) {
   return (
     <>
-      <PageMeta title="No encontrado" path="/404" />
       <section className="shell not-found">
         <div>
           <p className="eyebrow">Error 404</p>

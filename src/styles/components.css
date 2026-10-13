@@ -133,63 +133,6 @@
   }
 }
 
-/* Metrics */
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin: 0;
-  border-block: 1px solid var(--line);
-}
-
-.metrics > div {
-  display: flex;
-  flex-direction: column-reverse;
-  justify-content: flex-end;
-  gap: 6px;
-  padding: 28px 24px;
-  border-left: 1px solid var(--line);
-}
-
-.metrics > div:first-child {
-  border-left: 0;
-  padding-left: 0;
-}
-
-.metrics dd {
-  margin: 0;
-  color: var(--ink);
-  font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem);
-  font-weight: 560;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-.metrics dt {
-  color: var(--muted);
-  font-size: 0.9375rem;
-  line-height: 1.45;
-}
-
-@media (max-width: 900px) {
-  .metrics {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .metrics > div {
-    padding: 22px 16px;
-  }
-
-  .metrics > div:nth-child(odd) {
-    border-left: 0;
-    padding-left: 0;
-  }
-
-  .metrics > div:nth-child(n + 3) {
-    border-top: 1px solid var(--line);
-  }
-}
-
 /* Project cards */
 .project-grid {
   display: grid;
@@ -350,6 +293,151 @@
 .tone-blue {
   background: #a5bfd2;
   color: #203a57;
+}
+
+.tone-erp {
+  background: #1f2b33;
+  color: #dfe9ec;
+}
+
+.tone-xml {
+  background: #efe8dc;
+  color: #2b2620;
+}
+
+/* ERP: module board and a query answered in under a second */
+.art-erp .art-caption,
+.art-xml .art-caption {
+  top: 20px;
+  bottom: auto;
+  left: 62px;
+}
+
+.erp-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 78%;
+  margin-top: -4%;
+}
+
+.erp-board div {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px 12px;
+  border: 1px solid rgb(223 233 236 / 0.14);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.04);
+}
+
+.erp-board div.is-active {
+  border-color: #ff7a4d;
+  background: rgb(255 122 77 / 0.12);
+}
+
+.erp-board b {
+  font-family: var(--font-mono);
+  font-size: clamp(0.5625rem, 1.9cqi, 0.75rem);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.erp-board i {
+  display: block;
+  height: 4px;
+  border-radius: 999px;
+  background: rgb(223 233 236 / 0.28);
+}
+
+.erp-board .is-active i:first-of-type {
+  background: #ff7a4d;
+}
+
+.erp-query {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 18px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(0.625rem, 2.1cqi, 0.75rem);
+  color: rgb(223 233 236 / 0.7);
+}
+
+.erp-query span {
+  color: #8fc1ff;
+}
+
+.erp-query em {
+  float: right;
+  font-style: normal;
+  color: #5be3a5;
+}
+
+/* XML: queue of processes feeding a catalogue */
+.art-xml {
+  grid-template-columns: auto auto;
+  place-content: center;
+  gap: clamp(14px, 5cqi, 36px);
+}
+
+.xml-queue {
+  display: grid;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: clamp(0.625rem, 2.1cqi, 0.8125rem);
+}
+
+.xml-queue p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid rgb(43 38 32 / 0.16);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 0.6);
+}
+
+.xml-queue i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.xml-queue .is-done {
+  background: #24834f;
+}
+
+.xml-queue .is-running {
+  background: #e2491d;
+  box-shadow: 0 0 0 3px rgb(226 73 29 / 0.2);
+}
+
+.xml-code {
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #1d1b18;
+  color: #e9e3d8;
+  font-family: var(--font-mono);
+  font-size: clamp(0.5625rem, 2cqi, 0.78rem);
+  line-height: 1.6;
+  box-shadow: 0 18px 40px -20px rgb(43 38 32 / 0.6);
+}
+
+.xml-code .tag {
+  color: #ff8a5f;
+}
+
+.xml-code .attr {
+  color: #8fc1ff;
+}
+
+.xml-code .value {
+  color: #b5e6a2;
 }
 
 .art {
@@ -1011,4 +1099,104 @@
 
 .breadcrumb a:hover {
   color: var(--ink);
+}
+
+/* Decorative salon identity and appointment calendar; no customer data. */
+.tone-salon {
+  background: var(--salon-bg);
+  color: var(--salon-ink);
+}
+.art-salon {
+  grid-template-columns: 1fr 1fr;
+  gap: 7%;
+  padding: 12% 10% 10%;
+}
+.art-salon .art-caption {
+  top: 20px;
+  bottom: auto;
+  left: 62px;
+}
+.salon-mark {
+  position: relative;
+  width: 100%;
+  text-align: center;
+}
+.salon-mark strong {
+  position: relative;
+  font-family: var(--font-serif);
+  font-size: clamp(4rem, 29cqi, 12rem);
+  font-weight: 400;
+  line-height: 1;
+}
+.salon-mark strong span {
+  color: var(--salon-muted);
+}
+.salon-leaf {
+  position: absolute;
+  width: 75%;
+  top: -25%;
+  left: -12%;
+  fill: none;
+  stroke: var(--salon-muted);
+  stroke-width: 1.2;
+}
+.salon-planner {
+  width: 100%;
+  padding: 12%;
+  background: var(--salon-paper);
+  border: 1px solid var(--salon-muted);
+  border-radius: 12px;
+  transform: rotate(-5deg);
+}
+.salon-planner-heading {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 14%;
+}
+.salon-planner-heading i {
+  height: 3px;
+  width: 16%;
+  background: var(--salon-muted);
+}
+.salon-planner-heading i:first-child {
+  width: 45%;
+  background: var(--salon-ink);
+  margin-right: auto;
+}
+.salon-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+.salon-calendar i {
+  aspect-ratio: 1;
+  border: 1px solid var(--salon-bg);
+  border-radius: 2px;
+}
+.salon-calendar .is-booked {
+  background: var(--salon-ink);
+  border-color: var(--salon-ink);
+}
+.salon-appointment {
+  display: flex;
+  align-items: center;
+  gap: 7%;
+  margin-top: 12%;
+}
+.salon-appointment i {
+  width: 12%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--salon-muted);
+}
+.salon-appointment span {
+  width: 42%;
+  height: 3px;
+  background: var(--salon-muted);
+}
+.salon-appointment b {
+  width: 20%;
+  height: 3px;
+  margin-left: auto;
+  background: var(--salon-ink);
 }

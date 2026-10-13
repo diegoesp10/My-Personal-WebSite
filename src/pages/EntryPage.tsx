@@ -1,6 +1,6 @@
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
+import { Link } from '../components/Link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { PageMeta } from '../components/PageMeta';
 import { usePortfolio } from '../data/PortfolioContext';
 import { formatDate, paragraphs } from '../lib/format';
 import { sortedEntries } from './JournalPage';
@@ -19,7 +19,6 @@ export default function EntryPage() {
 
   return (
     <>
-      <PageMeta title={entry.title} description={text[0]} path={`/diario/${entry.id}`} />
       <article className="shell entry">
         <nav className="breadcrumb" aria-label="Ruta">
           <Link to="/diario">
