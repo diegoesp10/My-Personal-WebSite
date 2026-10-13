@@ -103,3 +103,7 @@ Dockerfile · nginx.conf · compose.yaml · Start-Docker.ps1
 `profile.hasDrivingLicense` y `profile.hasOwnVehicle` son booleanos opcionales al importar contenido antiguo (por defecto `false`). Se editan desde Perfil y se muestran en Sobre mí, el CV y su versión imprimible cuando están activados. `project.experienceId` vincula el trabajo a una etapa profesional; vacío indica un proyecto personal.
 
 El contenido incluye Azure y pipelines de CI/CD, uso diario de Claude y Codex y aprendizaje con LLMs locales. La ficha `peluqueria-lucia` describe la web pública, gestión y agenda del salón como proyecto en desarrollo; su composición decorativa utiliza `art: "salon"`. Los textos y competencias se gestionan desde el editor, no están incrustados en las páginas.
+
+## CI/CD por SSH
+
+El workflow `.github/workflows/ci-cd.yml` comprueba las PR y publica una imagen al actualizar `main`. El despliegue a la VM espera aprobación en el entorno `production`, usa secretos de GitHub y conserva los datos. Configuración, credenciales y activación en [docs/CI-CD.md](docs/CI-CD.md).
