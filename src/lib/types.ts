@@ -17,6 +17,7 @@ export type Profile = {
   linkedin: string;
   portrait: string;
 };
+export type ProjectSection = { title: string; text: string };
 export type ProjectLink = { label: string; url: string };
 export type Project = {
   id: string;
@@ -24,6 +25,7 @@ export type Project = {
   category: string;
   description: string;
   details: string;
+  sections?: ProjectSection[];
   year: string;
   status: string;
   url: string;

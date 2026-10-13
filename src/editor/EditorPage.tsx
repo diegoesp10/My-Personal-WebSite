@@ -8,6 +8,7 @@ import { ApiRequestError, imageUrl, request } from '../lib/api';
 import type { Portfolio, Profile } from '../lib/types';
 import { Field, ListField } from './fields';
 import { ErrorHistoryPanel } from './ErrorHistoryPanel';
+import { ProjectSectionsEditor } from './ProjectSectionsEditor';
 
 // Metrics stay in the API contract but are not shown on the site, so they are not edited here.
 type Collection = 'projects' | 'experience' | 'education' | 'skills' | 'entries';
@@ -209,6 +210,7 @@ function Editor({
           category: 'Backend .NET',
           description: '',
           details: '',
+          sections: [],
           year: String(new Date().getFullYear()),
           status: 'En desarrollo',
           url: '',
@@ -481,6 +483,14 @@ function Editor({
                       multiline
                       hint="Separa los párrafos con una línea en blanco."
                       onChange={(v) => change((d) => void (d.projects[i].details = v))}
+                    />
+                    <ProjectSectionsEditor
+                      sections={p.sections ?? []}
+                      onChange={(sections) =>
+                        change((d) => {
+                          d.projects[i].sections = sections;
+                        })
+                      }
                     />
                     <Field
                       label="Año"

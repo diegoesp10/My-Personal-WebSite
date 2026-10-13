@@ -445,6 +445,7 @@
 
 .project-header .page-title {
   max-width: 20ch;
+  overflow-wrap: anywhere;
 }
 
 .project-hero .project-visual {

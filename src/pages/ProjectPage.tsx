@@ -90,6 +90,18 @@ export default function ProjectPage() {
             {paragraphs(project.details).map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
+            {project.sections?.map((section, index) => (
+              <section
+                className="project-case-section"
+                key={`${index}-${section.title}`}
+                aria-labelledby={`case-section-${index}`}
+              >
+                <h2 id={`case-section-${index}`}>{section.title}</h2>
+                {paragraphs(section.text).map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </section>
+            ))}
             {project.highlights.length > 0 && (
               <>
                 <h2 className="mini-title">Lo más destacado</h2>
