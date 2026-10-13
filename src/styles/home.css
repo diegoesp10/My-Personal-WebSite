@@ -1,0 +1,227 @@
+/* Home page: scroll cue, stack strip, skills spotlight, tilting project visuals, career timeline and the dot
+   field of the contact band (pages/HomePage.tsx, motion/home.ts, motion/interactions.ts). */
+
+.hero {
+  position: relative;
+}
+
+.scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+}
+
+.scroll-cue:hover {
+  color: var(--ink);
+}
+
+.scroll-cue i {
+  position: relative;
+  width: 1px;
+  height: 42px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.scroll-cue i::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -40%;
+  width: 100%;
+  height: 40%;
+  background: var(--accent);
+  animation: cue-drop 1.9s var(--ease) infinite;
+}
+
+@keyframes cue-drop {
+  to {
+    top: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .scroll-cue {
+    display: none;
+  }
+}
+
+/* Stack strip (components/StackMarquee.tsx, React Bits LogoLoop) */
+.stack-marquee {
+  padding-block: 20px;
+  border-block: 1px solid var(--line);
+}
+
+.stack-marquee .logoloop__item {
+  font-size: 1rem;
+  list-style: none;
+}
+
+.stack-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  color: var(--ink);
+  font-size: clamp(1.35rem, 1rem + 1.4vw, 2.2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+.stack-item::before {
+  content: '';
+  width: 0.26em;
+  height: 0.26em;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.stack-marquee .logoloop__item:nth-child(even) .stack-item {
+  color: var(--accent-text);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Skills: a soft light follows the pointer over each row. */
+.expertise-list li {
+  position: relative;
+}
+
+.expertise-list li::before {
+  content: '';
+  position: absolute;
+  inset: 0 -18px;
+  border-radius: var(--radius);
+  background: radial-gradient(
+    280px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    color-mix(in srgb, var(--accent) 13%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease);
+}
+
+.expertise-list li:hover::before {
+  opacity: 1;
+}
+
+.expertise-list li .expertise-index {
+  transition: color 0.3s var(--ease);
+}
+
+.expertise-list li:hover .expertise-index {
+  color: var(--accent-text);
+}
+
+/* Projects: the visual leans towards the pointer with a moving glare. */
+.project-card-link {
+  perspective: 1000px;
+}
+
+.project-visual {
+  transform-style: preserve-3d;
+}
+
+.project-visual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: radial-gradient(
+    460px circle at var(--glare-x, 50%) var(--glare-y, 50%),
+    rgb(255 255 255 / 0.2),
+    transparent 60%
+  );
+  opacity: var(--glare-o, 0);
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease);
+}
+
+/* Career timeline */
+.role-track {
+  position: relative;
+  padding-left: 30px;
+}
+
+.role-track::before,
+.role-progress {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line-strong);
+}
+
+.role-progress {
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+.role-list li {
+  position: relative;
+}
+
+.role-list li::before {
+  content: '';
+  position: absolute;
+  left: -30px;
+  top: 30px;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--bg-sunken);
+  transition:
+    background 0.35s var(--ease),
+    border-color 0.35s var(--ease),
+    box-shadow 0.35s var(--ease);
+}
+
+.role-list li.is-passed::before {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .role-progress {
+    transform: none;
+  }
+
+  .scroll-cue i::after {
+    animation: none;
+  }
+}
+
+/* Contact band with its dot field (components/DotField.tsx) */
+.contact-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.dot-field {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  width: 100%;
+  height: 100%;
+}

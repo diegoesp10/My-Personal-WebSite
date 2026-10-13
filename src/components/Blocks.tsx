@@ -3,6 +3,8 @@ import { Link } from './Link';
 import { ArrowRight, ArrowUpRight, Github, Linkedin, Mail, Phone } from 'lucide-react';
 import { safeUrl, telUrl } from '../lib/api';
 import type { Profile } from '../lib/types';
+import { DotField } from './DotField';
+import Magnet from './reactbits/Magnet';
 
 export function PageHeader({
   eyebrow,
@@ -70,18 +72,21 @@ export function ContactBand({ profile }: { profile: Profile }) {
   const phone = telUrl(profile.phone);
   return (
     <section className="contact-band" aria-labelledby="contact-band-title">
+      <DotField color="--band-ink" />
       <div className="shell contact-band-inner" data-reveal>
         <div>
           <p className="eyebrow">Contacto</p>
-          <h2 id="contact-band-title">
+          <h2 id="contact-band-title" data-split>
             ¿Tu proyecto necesita <em className="accent-serif">un buen backend?</em>
           </h2>
         </div>
         <div className="contact-band-actions">
           {profile.email && (
-            <a className="button button-light" href={`mailto:${profile.email}`}>
-              <Mail size={17} /> Escríbeme
-            </a>
+            <Magnet padding={70} magnetStrength={3}>
+              <a className="button button-light" href={`mailto:${profile.email}`}>
+                <Mail size={17} /> Escríbeme
+              </a>
+            </Magnet>
           )}
           {phone && (
             <a className="button button-outline-dark" href={phone}>
