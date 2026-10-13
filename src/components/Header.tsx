@@ -4,22 +4,28 @@ import { Link, NavLink } from './Link';
 import { ArrowUpRight, Github, Linkedin, Menu, X } from 'lucide-react';
 import { safeUrl, telUrl } from '../lib/api';
 import type { Profile } from '../lib/types';
+import { useLanguage } from '../i18n/LanguageContext';
 import { BrandMark } from './Brand';
+import { LanguageSwitch } from './LanguageSwitch';
 import { ThemeToggle } from './ThemeToggle';
 
-export const navigation: [string, string][] = [
-  ['/proyectos', 'Proyectos'],
-  ['/experiencia', 'Experiencia'],
-  ['/github', 'GitHub'],
-  ['/visitas', 'Visitas'],
-  ['/sobre-mi', 'Sobre mí'],
-  ['/diario', 'Diario'],
+export type Section = 'proyectos' | 'experiencia' | 'github' | 'visitas' | 'sobre-mi' | 'diario';
+
+/** Main sections: address without language prefix and key of its name in the dictionaries (t.nav). */
+export const navigation: [string, Section][] = [
+  ['/proyectos', 'proyectos'],
+  ['/experiencia', 'experiencia'],
+  ['/github', 'github'],
+  ['/visitas', 'visitas'],
+  ['/sobre-mi', 'sobre-mi'],
+  ['/diario', 'diario'],
 ];
 
 export function Header({ profile }: { profile: Profile }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
+  const { t } = useLanguage();
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 901px)');
     const closeOnDesktop = () => {
@@ -73,33 +79,34 @@ export function Header({ profile }: { profile: Profile }) {
   return (
     <header className={`site-header${scrolled ? ' is-scrolled' : ''}${open ? ' is-open' : ''}`}>
       <div className="shell header-inner">
-        <Link to="/" className="brand" aria-label={`${profile.name}, inicio`}>
+        <Link to="/" className="brand" aria-label={t.nav.brandHome(profile.name)}>
           <BrandMark />
           <span className="brand-name">{shortName}</span>
         </Link>
-        <nav className="main-nav" aria-label="Principal">
-          {navigation.map(([to, label]) => (
+        <nav className="main-nav" aria-label={t.nav.main}>
+          {navigation.map(([to, key]) => (
             <NavLink key={to} to={to}>
               {({ isActive }) => (
                 <>
                   {isActive && <span className="nav-pill" aria-hidden="true" />}
-                  <span className="nav-label">{label}</span>
+                  <span className="nav-label">{t.nav[key]}</span>
                 </>
               )}
             </NavLink>
           ))}
         </nav>
         <div className="header-actions">
+          <LanguageSwitch className="header-language" />
           <ThemeToggle />
           <NavLink to="/contacto" className="button button-small header-cta">
-            Contacto
+            {t.nav.contacto}
           </NavLink>
           <button
             type="button"
             className="icon-button menu-toggle"
             aria-expanded={open}
             aria-controls="mobile-menu"
-            aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
+            aria-label={open ? t.nav.closeMenu : t.nav.openMenu}
             onClick={() => setOpen(!open)}
           >
             {open ? <X size={20} /> : <Menu size={20} />}
@@ -108,18 +115,19 @@ export function Header({ profile }: { profile: Profile }) {
       </div>
       <span ref={progress} className="scroll-progress" aria-hidden="true" />
       <div id="mobile-menu" className="mobile-menu" hidden={!open} data-lenis-prevent>
-        <nav aria-label="Principal (móvil)">
+        <nav aria-label={t.nav.mobile}>
           <NavLink to="/" end>
-            Inicio
+            {t.nav.home}
           </NavLink>
-          {navigation.map(([to, label]) => (
+          {navigation.map(([to, key]) => (
             <NavLink key={to} to={to}>
-              {label}
+              {t.nav[key]}
             </NavLink>
           ))}
-          <NavLink to="/contacto">Contacto</NavLink>
+          <NavLink to="/contacto">{t.nav.contacto}</NavLink>
         </nav>
         <div className="mobile-menu-footer">
+          <LanguageSwitch />
           {profile.email && <a href={`mailto:${profile.email}`}>{profile.email}</a>}
           {telUrl(profile.phone) && <a href={telUrl(profile.phone)}>{profile.phone}</a>}
           <div className="social-row">

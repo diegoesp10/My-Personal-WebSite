@@ -1,3 +1,5 @@
+import type { Language } from '../i18n/languages';
+
 // Mirrors the JSON contract of the API (camelCase). Keep in sync with Portfolio.Domain.
 export type Profile = {
   name: string;
@@ -152,9 +154,14 @@ export type PageMetadata = {
   siteName: string;
   published: string | null;
   structuredData: Record<string, unknown> | null;
+  /** Language of the page (es, en) and its Open Graph locale (es_ES, en_US). */
+  language: ApiLanguage;
+  locale: string;
+  /** The page in each language it exists in, plus x-default; empty for pages that are not indexed. */
+  alternates: { language: string; url: string }[];
 };
 
-export type ApiLanguage = 'es' | 'en';
+export type ApiLanguage = Language;
 export type ApiProblem = {
   type: string;
   title: string;

@@ -1,10 +1,11 @@
+import type { Messages } from '../i18n/es';
 import type { Experience, Portfolio, Profile, Project } from './types';
 
 /** Only show mobility information explicitly enabled in the profile. */
-export const mobilityDetails = (profile: Profile): string[] =>
+export const mobilityDetails = (profile: Profile, t: Messages): string[] =>
   [
-    profile.hasDrivingLicense && 'Carnet de conducir',
-    profile.hasOwnVehicle && 'Vehículo propio',
+    profile.hasDrivingLicense && t.experience.drivingLicense,
+    profile.hasOwnVehicle && t.experience.ownVehicle,
   ].filter((item): item is string => Boolean(item));
 
 /** Position in which a project was done; undefined for personal projects. */

@@ -4,6 +4,8 @@ import { ArrowDown, ArrowLeft, ArrowUp, Check, Plus, Save, Trash2, Upload, X } f
 import { BrandMark } from '../components/Brand';
 import { artOptions } from '../components/ProjectArt';
 import { usePortfolioState } from '../data/PortfolioContext';
+import { languageState } from '../i18n/LanguageContext';
+import { defaultLanguage, languages, type Language } from '../i18n/languages';
 import { ApiError, imageUrl, request } from '../lib/api';
 import type { Portfolio, Profile } from '../lib/types';
 import { Field, ListField } from './fields';
@@ -41,12 +43,16 @@ const today = () =>
     day: '2-digit',
   }).format(new Date());
 
+/** Local content editor. Each language of the site is a separate copy of the content, edited and saved on its own. */
 export default function EditorPage() {
-  const { data, canEdit, replace } = usePortfolioState();
+  const { contents, ensure, canEdit, replace } = usePortfolioState();
+  const [language, setLanguage] = useState<Language>(defaultLanguage);
+  const data = contents[language];
   const navigate = useNavigate();
   useEffect(() => {
     document.title = 'Editor · Diego Espina';
   }, []);
+  useEffect(() => ensure(language), [ensure, language]);
 
   if (!data || canEdit === undefined)
     return (
@@ -68,15 +74,29 @@ export default function EditorPage() {
         </button>
       </div>
     );
-  return <Editor data={data} onSave={replace} onClose={() => navigate('/')} />;
+  return (
+    <Editor
+      key={language}
+      data={data}
+      language={language}
+      onLanguage={setLanguage}
+      onSave={(saved) => replace(saved, language)}
+      onClose={() => navigate(`/${language}`)}
+    />
+  );
 }
 
 function Editor({
   data,
+  language,
+  onLanguage,
   onSave,
   onClose,
 }: {
   data: Portfolio;
+  /** Language of the content being edited; changing it loads that copy. */
+  language: Language;
+  onLanguage: (language: Language) => void;
   onSave: (d: Portfolio) => void;
   onClose: () => void;
 }) {
@@ -110,11 +130,16 @@ function Editor({
     setBusy(true);
     setMessage('');
     try {
-      const saved = await request<Portfolio>('/api/portfolio', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-Portfolio-Editor': 'local' },
-        body: JSON.stringify(draft),
-      });
+      // request() adds the language to the body: the API saves only this language's copy.
+      const saved = await request<Portfolio>(
+        '/api/portfolio',
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'X-Portfolio-Editor': 'local' },
+          body: JSON.stringify(draft),
+        },
+        language,
+      );
       setDraft(saved);
       onSave(saved);
       setDirty(false);
@@ -272,6 +297,15 @@ function Editor({
     });
   }
 
+  function switchLanguage(next: Language) {
+    if (next === language) return;
+    if (
+      !dirty ||
+      confirm('Hay cambios sin guardar en este idioma. ¿Cambiar de idioma y descartarlos?')
+    )
+      onLanguage(next);
+  }
+
   function close() {
     if (!dirty || confirm('Hay cambios sin guardar. ¿Salir del editor y descartarlos?')) onClose();
   }
@@ -346,9 +380,24 @@ function Editor({
             Hazlo <em className="accent-serif">tuyo.</em>
           </h1>
           <p className="muted">
-            Los cambios se guardan en este equipo al pulsar «Guardar cambios». Para Docker o
-            producción, copia después el contenido de App_Data.
+            Los cambios se guardan en este equipo al pulsar «Guardar cambios». Cada idioma se edita
+            y se guarda por separado, con los mismos identificadores. Para Docker o producción,
+            copia después el contenido de App_Data.
           </p>
+          <div className="filters editor-language" role="group" aria-label="Idioma del contenido">
+            {languages.map((code) => (
+              <button
+                key={code}
+                type="button"
+                lang={code}
+                className={code === language ? 'is-active' : ''}
+                aria-pressed={code === language}
+                onClick={() => switchLanguage(code)}
+              >
+                {languageState(code).t.language.name}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="editor-tabs" role="tablist" aria-label="Secciones">
           {tabs.map(([key, label]) => (

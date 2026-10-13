@@ -2,22 +2,25 @@ import { useParams } from 'react-router';
 import { PageHeader } from '../components/Blocks';
 import { NavLink } from '../components/Link';
 import { usePortfolio } from '../data/PortfolioContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { LEGAL_UPDATED, legalDocuments } from '../legal/documents';
-import { formatDate, pad } from '../lib/format';
+import { pad, useFormat } from '../lib/format';
 import NotFoundPage from './NotFoundPage';
 
-/** /legal/:slug — legal notice, privacy, cookies and terms (texts in legal/documents.tsx). */
+/** /legal/:slug — legal notice, privacy, cookies and terms (texts in legal/es.tsx and legal/en.tsx). */
 export default function LegalPage() {
   const { slug } = useParams();
   const { profile } = usePortfolio();
-  const documents = legalDocuments(profile);
+  const { language, t } = useLanguage();
+  const format = useFormat();
+  const documents = legalDocuments(profile, language);
   const document = documents.find((item) => item.slug === slug);
   if (!document) return <NotFoundPage what="texto legal" />;
 
   return (
     <>
-      <PageHeader eyebrow="Legal" title={document.title} lead={document.lead}>
-        <nav className="legal-tabs" aria-label="Textos legales">
+      <PageHeader eyebrow={t.legal.eyebrow} title={document.title} lead={document.lead}>
+        <nav className="legal-tabs" aria-label={t.legal.tabs}>
           {documents.map((item) => (
             <NavLink key={item.slug} to={`/legal/${item.slug}`}>
               {item.short}
@@ -28,7 +31,7 @@ export default function LegalPage() {
       <div className="shell legal-layout">
         <aside className="legal-toc" aria-labelledby="legal-toc-title">
           <p id="legal-toc-title" className="eyebrow">
-            En esta página
+            {t.legal.toc}
           </p>
           <ol>
             {document.sections.map((section, index) => (
@@ -40,8 +43,8 @@ export default function LegalPage() {
             ))}
           </ol>
           <p className="legal-updated">
-            Última revisión
-            <time dateTime={LEGAL_UPDATED}>{formatDate(LEGAL_UPDATED)}</time>
+            {t.legal.updated}
+            <time dateTime={LEGAL_UPDATED}>{format.date(LEGAL_UPDATED)}</time>
           </p>
         </aside>
         <article className="legal-article">

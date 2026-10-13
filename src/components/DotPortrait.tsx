@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { loadGrid, type Grid } from './portraitGrid';
 import { canUse3D, PortraitField3D } from './PortraitField3D';
+import { useLanguage } from '../i18n/LanguageContext';
 import type { Profile } from '../lib/types';
 
 type Colors = { ink: string; accent: string; dark: boolean };
@@ -234,31 +235,32 @@ export function PortraitPlate({
 }) {
   const [grid, setGrid] = useState<Pick<Grid, 'columns' | 'rows' | 'count'>>();
   const [three, setThree] = useState(canUse3D);
+  const { t, locale } = useLanguage();
   return (
     <figure className="portrait-plate">
       <div className="portrait-frame">
         <span className="hud hud-top-left" aria-hidden="true">
-          fig. 01 · retrato generativo
+          {t.portrait.figure}
         </span>
         <span className="hud hud-top-right" aria-hidden="true">
-          {profile.location || 'retrato'}
+          {profile.location || t.portrait.place}
         </span>
         {three ? (
           <PortraitField3D
-            label={`Retrato de ${profile.name} compuesto por puntos en 3D`}
+            label={t.portrait.label3d(profile.name)}
             onReady={setGrid}
             onFail={() => setThree(false)}
           />
         ) : (
-          <DotCanvas label={`Retrato de ${profile.name} compuesto por puntos`} onReady={setGrid} />
+          <DotCanvas label={t.portrait.label2d(profile.name)} onReady={setGrid} />
         )}
         <span className="hud hud-bottom-left" aria-hidden="true">
           {grid
-            ? `${grid.count.toLocaleString('es-ES')} puntos · ${grid.columns}×${grid.rows}`
-            : 'renderizando…'}
+            ? `${grid.count.toLocaleString(locale)} ${t.portrait.points} · ${grid.columns}×${grid.rows}`
+            : t.portrait.rendering}
         </span>
         <span className="hud hud-bottom-right" aria-hidden="true">
-          <span className="hud-hint">{three ? 'gira con el cursor' : 'mueve el cursor'}</span>{' '}
+          <span className="hud-hint">{three ? t.portrait.rotate : t.portrait.move}</span>{' '}
           {three ? 'webgl 3d' : 'canvas 2d'}
         </span>
         <i className="corner corner-tl" aria-hidden="true" />
@@ -267,7 +269,7 @@ export function PortraitPlate({
         <i className="corner corner-br" aria-hidden="true" />
       </div>
       {tags.length > 0 && (
-        <ul className="portrait-tags" aria-label="Tecnologías principales">
+        <ul className="portrait-tags" aria-label={t.portrait.tags}>
           {tags.map((tag, index) => (
             <li key={tag} style={{ '--i': index } as CSSProperties}>
               {tag}

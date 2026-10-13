@@ -10,14 +10,17 @@ import Magnet from '../components/reactbits/Magnet';
 import { StackMarquee } from '../components/StackMarquee';
 import { usePortfolio } from '../data/PortfolioContext';
 import { useGitHub } from '../data/useGitHub';
+import { useLanguage } from '../i18n/LanguageContext';
 import { safeUrl } from '../lib/api';
-import { emphasis, formatPeriod, pad, paragraphs } from '../lib/format';
+import { emphasis, pad, paragraphs, useFormat } from '../lib/format';
 import { useHeroIntro, useRoleTimeline } from '../motion/home';
 import { useSpotlight, useTilt } from '../motion/interactions';
 
 export default function HomePage() {
   const data = usePortfolio();
   const p = data.profile;
+  const { t } = useLanguage();
+  const format = useFormat();
   const featured = data.projects.filter((project) => project.featured);
   const shown = (featured.length ? featured : data.projects).slice(0, 4);
   const stack = [...new Set(data.skills.flatMap((skill) => skill.tags))].slice(0, 18);
@@ -51,19 +54,19 @@ export default function HomePage() {
           <div className="hero-actions" data-hero="actions">
             <Magnet padding={70} magnetStrength={3}>
               <Link className="button button-accent" to="/contacto">
-                Hablemos <ArrowRight size={17} />
+                {t.home.talk} <ArrowRight size={17} />
               </Link>
             </Magnet>
             <Magnet padding={70} magnetStrength={3}>
               <Link className="button button-ghost" to="/proyectos">
-                Ver proyectos
+                {t.home.seeProjects}
               </Link>
             </Magnet>
             <SocialLinks profile={p} />
           </div>
           {p.availability && (
             <p className="hero-meta" data-hero="meta">
-              <span>Modalidad</span> {p.availability}
+              <span>{t.home.availability}</span> {p.availability}
             </p>
           )}
         </div>
@@ -71,7 +74,7 @@ export default function HomePage() {
           <PortraitPlate profile={p} tags={signature} />
         </div>
         <a className="scroll-cue" href="#home-expertise" data-hero="cue">
-          <span>Desliza</span>
+          <span>{t.home.scroll}</span>
           <i aria-hidden="true" />
         </a>
       </section>
@@ -80,12 +83,8 @@ export default function HomePage() {
       <section className="shell section" aria-labelledby="home-expertise">
         <SectionHeading
           id="home-expertise"
-          eyebrow="01 · Especialidad"
-          title={
-            <>
-              Backend que se mide, <em className="accent-serif">no que se supone</em>
-            </>
-          }
+          eyebrow={t.home.expertiseEyebrow}
+          title={emphasis(t.home.expertiseTitle)}
         />
         <div className="expertise">
           <div className="expertise-case" data-reveal>
@@ -109,13 +108,9 @@ export default function HomePage() {
       <section className="shell section section-flush-top" aria-labelledby="home-projects">
         <SectionHeading
           id="home-projects"
-          eyebrow="02 · Proyectos"
-          title={
-            <>
-              Trabajo <em className="accent-serif">seleccionado</em>
-            </>
-          }
-          link={{ to: '/proyectos', label: `Ver los ${data.projects.length} proyectos` }}
+          eyebrow={t.home.projectsEyebrow}
+          title={emphasis(t.home.projectsTitle)}
+          link={{ to: '/proyectos', label: t.home.allProjects(data.projects.length) }}
         />
         <div ref={projects} className="project-grid">
           {shown.map((project, index) => (
@@ -129,15 +124,11 @@ export default function HomePage() {
           <div>
             <SectionHeading
               id="home-experience"
-              eyebrow="03 · Trayectoria"
-              title={
-                <>
-                  Dónde he <em className="accent-serif">trabajado</em>
-                </>
-              }
+              eyebrow={t.home.careerEyebrow}
+              title={emphasis(t.home.careerTitle)}
             />
             <Link className="arrow-link" to="/experiencia" data-reveal>
-              Experiencia completa y CV <ArrowRight size={16} />
+              {t.home.fullCareer} <ArrowRight size={16} />
             </Link>
           </div>
           <div className="role-track">
@@ -145,7 +136,7 @@ export default function HomePage() {
             <ol className="role-list">
               {data.experience.map((role, index) => (
                 <li key={role.id} data-reveal style={{ '--i': index } as CSSProperties}>
-                  <span className="role-period">{formatPeriod(role.start, role.end)}</span>
+                  <span className="role-period">{format.period(role.start, role.end)}</span>
                   <strong>{role.role}</strong>
                   <span>{role.company}</span>
                 </li>
@@ -163,26 +154,23 @@ export default function HomePage() {
 
 function GitHubTeaser({ github }: { github?: string }) {
   const { activity, loading, failed } = useGitHub();
+  const { t } = useLanguage();
   const unavailable = failed || (activity && !activity.available);
   return (
     <section className="shell section" aria-labelledby="home-github">
       <SectionHeading
         id="home-github"
-        eyebrow="04 · En GitHub"
-        title={
-          <>
-            Lo que estoy <em className="accent-serif">construyendo</em>
-          </>
-        }
-        link={{ to: '/github', label: 'Repositorios y actividad' }}
+        eyebrow={t.home.githubEyebrow}
+        title={emphasis(t.home.githubTitle)}
+        link={{ to: '/github', label: t.home.githubLink }}
       />
-      {loading && <div className="skeleton-block" aria-label="Cargando actividad de GitHub" />}
+      {loading && <div className="skeleton-block" aria-label={t.home.githubLoading} />}
       {unavailable && (
         <p className="muted">
-          No he podido consultar GitHub ahora mismo.{' '}
+          {t.home.githubUnavailable}{' '}
           {github && (
             <a className="inline-link" href={github} target="_blank" rel="noreferrer">
-              Ver mi perfil <ArrowUpRight size={14} />
+              {t.home.githubProfile} <ArrowUpRight size={14} />
             </a>
           )}
         </p>
@@ -190,11 +178,11 @@ function GitHubTeaser({ github }: { github?: string }) {
       {activity?.available && (
         <div className="github-teaser">
           <div data-reveal>
-            <h3 className="mini-title">Últimos commits</h3>
+            <h3 className="mini-title">{t.home.latestCommits}</h3>
             <CommitList commits={activity.recentCommits.slice(0, 4)} />
           </div>
           <div data-reveal style={{ '--i': 1 } as CSSProperties}>
-            <h3 className="mini-title">Lenguajes en mis repositorios públicos</h3>
+            <h3 className="mini-title">{t.home.languages}</h3>
             <LanguageBar languages={activity.languages} />
           </div>
         </div>

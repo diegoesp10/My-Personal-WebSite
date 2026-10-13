@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { gsap } from '../motion/gsap';
 import { markIntroDone } from '../motion/intro';
 
@@ -16,6 +17,7 @@ export function Preloader({ ready, onDone }: { ready: boolean; onDone: () => voi
   const progress = useRef({ value: 0 });
   const loading = useRef<gsap.core.Tween | null>(null);
   const started = useRef(performance.now());
+  const { t } = useLanguage();
 
   useLayoutEffect(() => {
     const context = gsap.context(() => {
@@ -78,13 +80,13 @@ export function Preloader({ ready, onDone }: { ready: boolean; onDone: () => voi
   useEffect(() => markIntroDone, []);
 
   return (
-    <div ref={root} className="preloader" role="status" aria-label="Cargando la web">
+    <div ref={root} className="preloader" role="status" aria-label={t.preloader.label}>
       <div className="preloader-mark" aria-hidden="true">
         <span>de</span>
         <i />
       </div>
       <div className="preloader-meta" aria-hidden="true">
-        <span>Cargando portfolio</span>
+        <span>{t.preloader.meta}</span>
         <span>
           <span ref={count}>000</span> %
         </span>

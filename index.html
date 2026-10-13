@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="es">
+<!-- The language comes from the address (nginx.conf, $page_language); React keeps it in step when navigating. -->
+<html lang='<!--# echo var="page_language" default="es" -->'>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -31,6 +32,10 @@
       <p style="padding: 24px; font-family: system-ui, sans-serif">
         Esta web necesita JavaScript. Puedes escribirme a diegoespinarodriguez@gmail.com o ver mi
         código en github.com/diegoesp10.
+      </p>
+      <p lang="en" style="padding: 0 24px 24px; font-family: system-ui, sans-serif">
+        This website needs JavaScript. You can email me at diegoespinarodriguez@gmail.com or see my
+        code at github.com/diegoesp10.
       </p>
     </noscript>
     <script type="module" src="/src/main.tsx"></script>

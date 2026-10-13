@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Check, Copy, Home, RotateCcw } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { errorCopy } from '../lib/errors';
 import { useThemeColors } from '../lib/useThemeColors';
 import { gsap, reducedMotion } from '../motion/gsap';
@@ -26,7 +27,8 @@ export function ErrorScreen({
   embedded?: boolean;
   onRetry?: () => void;
 }) {
-  const copy = errorCopy(code);
+  const { t } = useLanguage();
+  const copy = errorCopy(code, t);
   const colors = useThemeColors();
   const label = useRef<HTMLSpanElement>(null);
   const [copied, setCopied] = useState(false);
@@ -68,7 +70,7 @@ export function ErrorScreen({
       </div>
       {!embedded && (
         <div className="error-bar shell">
-          <Link to="/" className="brand" aria-label="Inicio">
+          <Link to="/" className="brand" aria-label={t.nav.home}>
             <BrandMark />
           </Link>
           <ThemeToggle />
@@ -76,7 +78,8 @@ export function ErrorScreen({
       )}
       <div className="error-card">
         <p className="eyebrow error-eyebrow">
-          Error{status ? ` ${status}` : ''} · <code>{code}</code>
+          {t.error.eyebrow}
+          {status ? ` ${status}` : ''} · <code>{code}</code>
         </p>
         <p className="error-label" aria-hidden="true">
           <span ref={label}>{copy.label}</span>
@@ -87,13 +90,13 @@ export function ErrorScreen({
         <p className="error-text">{copy.text}</p>
         {reference && (
           <div className="error-reference">
-            <span>Referencia</span>
+            <span>{t.error.reference}</span>
             <code>{reference}</code>
             <button
               type="button"
               className="icon-button"
               onClick={copyReference}
-              aria-label={copied ? 'Referencia copiada' : 'Copiar la referencia'}
+              aria-label={copied ? t.error.referenceCopied : t.error.copyReference}
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
             </button>
@@ -102,15 +105,15 @@ export function ErrorScreen({
         <div className="error-actions">
           {copy.retry && onRetry && (
             <button type="button" className="button button-accent" onClick={onRetry}>
-              <RotateCcw size={17} /> Reintentar
+              <RotateCcw size={17} /> {t.error.retry}
             </button>
           )}
           <Link className={`button${copy.retry && onRetry ? ' button-ghost' : ''}`} to="/">
-            <Home size={17} /> Ir al inicio
+            <Home size={17} /> {t.error.home}
           </Link>
           {embedded && (
             <button type="button" className="button button-ghost" onClick={() => history.back()}>
-              <ArrowLeft size={17} /> Volver
+              <ArrowLeft size={17} /> {t.error.back}
             </button>
           )}
         </div>
