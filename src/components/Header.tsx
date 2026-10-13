@@ -56,15 +56,12 @@ export function Header({ profile }: { profile: Profile }) {
           <span className="brand-name">{shortName}</span>
         </Link>
         <nav className="main-nav" aria-label="Principal">
-          {navigation.map(([to, label], index) => (
+          {navigation.map(([to, label]) => (
             <NavLink key={to} to={to}>
               {({ isActive }) => (
                 <>
-                  {/* Shared view-transition name: the pill glides to the new section. */}
                   {isActive && <span className="nav-pill" aria-hidden="true" />}
-                  <span className="nav-label" style={{ viewTransitionName: `nav-label-${index}` }}>
-                    {label}
-                  </span>
+                  <span className="nav-label">{label}</span>
                 </>
               )}
             </NavLink>
