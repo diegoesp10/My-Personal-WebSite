@@ -1148,6 +1148,33 @@
   border-radius: 12px;
   transform: rotate(-5deg);
 }
+/* Address bar: the salon's website is live. */
+.salon-address {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10%;
+  padding: 4px 8px;
+  border: 1px solid var(--salon-muted);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: clamp(0.4rem, 2.6cqi, 0.7rem);
+  line-height: 1.4;
+  color: var(--salon-ink);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.salon-address i {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--salon-ink);
+}
+.salon-address span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .salon-planner-heading {
   display: flex;
   gap: 5px;
