@@ -18,29 +18,31 @@ export function ErrorHistoryPanel() {
   );
 
   useEffect(() => {
-    const controller = new AbortController();
+    // Outdated answers are ignored rather than aborted, so the API never sees a cancelled request.
+    let current = true;
     setLoading(true);
     setFailure('');
     request<ErrorHistory>(
       '/api/editor/errors?limit=50',
-      {
-        headers: { 'X-Portfolio-Editor': 'local' },
-        signal: controller.signal,
-      },
+      { headers: { 'X-Portfolio-Editor': 'local' } },
       language,
     )
-      .then(setHistory)
+      .then((history) => {
+        if (current) setHistory(history);
+      })
       .catch((error: Error) => {
-        if (!controller.signal.aborted)
+        if (current)
           setFailure(
             error.message +
               (error instanceof ApiError && error.traceId ? ` · ${error.traceId}` : ''),
           );
       })
       .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+        if (current) setLoading(false);
       });
-    return () => controller.abort();
+    return () => {
+      current = false;
+    };
   }, [language, refresh]);
 
   return (

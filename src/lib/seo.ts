@@ -53,14 +53,18 @@ export function usePageMetadata(pathname: string) {
     const served = first.current && document.head.querySelector('[data-seo]') !== null;
     first.current = false;
     if (served) return;
-    const controller = new AbortController();
-    request<PageMetadata>(`/api/seo/page?${new URLSearchParams({ path: decodePath(pathname) })}`, {
-      signal: controller.signal,
-    })
-      .then(applyPageMetadata)
+    // An outdated answer is ignored instead of aborting the request: the response is tiny, and aborting made the API
+    // see a cancelled request on every navigation (and twice per page in development, where effects run twice).
+    let current = true;
+    request<PageMetadata>(`/api/seo/page?${new URLSearchParams({ path: decodePath(pathname) })}`)
+      .then((page) => {
+        if (current) applyPageMetadata(page);
+      })
       // The previous metadata stays: it only affects the tab title and link previews.
       .catch(() => {});
-    return () => controller.abort();
+    return () => {
+      current = false;
+    };
   }, [pathname]);
 }
 
