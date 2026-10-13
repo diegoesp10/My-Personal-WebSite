@@ -289,6 +289,7 @@ export const en: Messages = {
     retrieved: (ago: string) => `, fetched ${ago}`,
     refresh: '. It refreshes every 30 minutes.',
     noCommits: 'No recent public commits yet.',
+    otherLanguages: 'Other',
   },
   visits: {
     eyebrow: 'Visits · live',

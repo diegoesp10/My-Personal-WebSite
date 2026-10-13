@@ -294,6 +294,7 @@ export const es = {
     retrieved: (ago: string) => `, consultados ${ago}`,
     refresh: '. Se actualizan cada 30 minutos.',
     noCommits: 'Todavía no hay commits públicos recientes.',
+    otherLanguages: 'Otros',
   },
   visits: {
     eyebrow: 'Visitas · en directo',
