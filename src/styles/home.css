@@ -118,6 +118,13 @@
   opacity: 1;
 }
 
+/* Narrow screens: the glow stays within the page gutter, so it never widens the page. */
+@media (max-width: 600px) {
+  .expertise-list li::before {
+    inset: 0 -12px;
+  }
+}
+
 .expertise-list li .expertise-index {
   transition: color 0.3s var(--ease);
 }
