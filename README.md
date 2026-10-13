@@ -104,6 +104,10 @@ Dockerfile · nginx.conf · compose.yaml · Start-Docker.ps1
 
 El contenido incluye Azure y pipelines de CI/CD, uso diario de Claude y Codex y aprendizaje con LLMs locales. La ficha `peluqueria-lucia` describe la web pública, gestión y agenda del salón como proyecto en desarrollo; su composición decorativa utiliza `art: "salon"`. Los textos y competencias se gestionan desde el editor, no están incrustados en las páginas.
 
+## Rama main protegida
+
+`main` solo cambia mediante pull request desde `develop`. GitHub impide el push directo, forzar el historial y borrar la rama, y exige que pasen las comprobaciones («Frontend checks») antes del merge. Publicar en producción pide dos confirmaciones: el merge de la PR y la aprobación del despliegue en el entorno `production`. En local, `.githooks/pre-push` pregunta antes de cada push y rechaza los push a `main`. Se activa una vez por clon con `git config core.hooksPath .githooks`. Desde una interfaz gráfica sin consola, el push se rechaza: hazlo desde la terminal.
+
 ## CI/CD por SSH
 
 El workflow `.github/workflows/ci-cd.yml` comprueba las PR y publica una imagen al actualizar `main`. El despliegue a la VM espera aprobación en el entorno `production`, usa secretos de GitHub y conserva los datos. Configuración, credenciales y activación en [docs/CI-CD.md](docs/CI-CD.md).
