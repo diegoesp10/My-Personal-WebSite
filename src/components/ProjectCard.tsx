@@ -5,6 +5,7 @@ import { imageUrl, isGitHubUrl, safeUrl, transitionName } from '../lib/api';
 import { companyName, positionOf } from '../lib/portfolio';
 import type { Project } from '../lib/types';
 import { usePortfolio } from '../data/PortfolioContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { Tags } from './Blocks';
 import { ProjectArt } from './ProjectArt';
 
@@ -36,6 +37,7 @@ export function ProjectCard({
   reflow?: boolean;
 }) {
   const position = positionOf(usePortfolio(), project);
+  const { t } = useLanguage();
   const hasCode = project.links.some((link) => isGitHubUrl(link.url));
   const hasSite = Boolean(safeUrl(project.url));
   return (
@@ -59,7 +61,9 @@ export function ProjectCard({
         </span>
         <div className="project-card-body">
           <p className="project-card-meta">
-            {position && <span className="is-company">En {companyName(position.company)}</span>}
+            {position && (
+              <span className="is-company">{t.projectCard.at(companyName(position.company))}</span>
+            )}
             <span>{project.category}</span>
             {project.year && <span>{project.year}</span>}
             {project.status && <span>{project.status}</span>}
@@ -70,13 +74,13 @@ export function ProjectCard({
             <Tags items={project.tags} limit={4} />
             <span className="project-card-signals">
               {hasCode && (
-                <span title="Código en GitHub">
-                  <Github size={15} aria-label="Código en GitHub" />
+                <span title={t.projectCard.code}>
+                  <Github size={15} aria-label={t.projectCard.code} />
                 </span>
               )}
               {hasSite && (
-                <span title="Web en producción">
-                  <Globe size={15} aria-label="Web en producción" />
+                <span title={t.projectCard.live}>
+                  <Globe size={15} aria-label={t.projectCard.live} />
                 </span>
               )}
             </span>

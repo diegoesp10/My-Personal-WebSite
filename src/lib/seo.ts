@@ -25,9 +25,14 @@ export function applyPageMetadata(page: PageMetadata) {
   meta('name', 'description', page.description);
   if (page.indexable && page.url) add('link', { rel: 'canonical', href: page.url });
   else meta('name', 'robots', 'noindex');
+  for (const alternate of page.alternates ?? [])
+    add('link', { rel: 'alternate', hreflang: alternate.language, href: alternate.url });
   meta('property', 'og:type', page.type);
   meta('property', 'og:site_name', page.siteName);
-  meta('property', 'og:locale', 'es_ES');
+  meta('property', 'og:locale', page.locale || 'es_ES');
+  for (const alternate of page.alternates ?? [])
+    if (alternate.language !== page.language && alternate.language !== 'x-default')
+      meta('property', 'og:locale:alternate', alternate.language === 'en' ? 'en_US' : 'es_ES');
   meta('property', 'og:title', page.title);
   meta('property', 'og:description', page.description);
   meta('property', 'og:url', page.url);
@@ -53,14 +58,18 @@ export function usePageMetadata(pathname: string) {
     const served = first.current && document.head.querySelector('[data-seo]') !== null;
     first.current = false;
     if (served) return;
-    const controller = new AbortController();
-    request<PageMetadata>(`/api/seo/page?${new URLSearchParams({ path: decodePath(pathname) })}`, {
-      signal: controller.signal,
-    })
-      .then(applyPageMetadata)
+    // An outdated answer is ignored instead of aborting the request: the response is tiny, and aborting made the API
+    // see a cancelled request on every navigation (and twice per page in development, where effects run twice).
+    let current = true;
+    request<PageMetadata>(`/api/seo/page?${new URLSearchParams({ path: decodePath(pathname) })}`)
+      .then((page) => {
+        if (current) applyPageMetadata(page);
+      })
       // The previous metadata stays: it only affects the tab title and link previews.
       .catch(() => {});
-    return () => controller.abort();
+    return () => {
+      current = false;
+    };
   }, [pathname]);
 }
 

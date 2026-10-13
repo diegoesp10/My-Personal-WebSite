@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { withoutLanguage } from '../i18n/languages';
 import { request } from '../lib/api';
 import type { VisitorSummary } from '../lib/types';
 
@@ -6,11 +7,13 @@ let firstPage = true;
 let lastSent = { path: '', at: 0 };
 
 /**
- * Reports a page view to the API (anonymous statistics on /visitas). No cookies or identifiers are sent; the
+ * Reports a page view to the API (anonymous statistics on /visitas). The path goes without its language prefix, so
+ * both versions of a page count together. No cookies or identifiers are sent; the
  * referring site goes only with the first page of the visit and only when it is another site. Browsers that ask
  * not to be tracked send nothing.
  */
-export function sendVisit(path: string) {
+export function sendVisit(pathname: string) {
+  const path = withoutLanguage(pathname);
   const privacy = navigator as Navigator & { globalPrivacyControl?: boolean };
   if (path.startsWith('/editor') || navigator.doNotTrack === '1' || privacy.globalPrivacyControl)
     return;

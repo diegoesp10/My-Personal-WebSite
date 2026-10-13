@@ -1,3 +1,5 @@
+import type { Language } from '../i18n/languages';
+
 // Mirrors the JSON contract of the API (camelCase). Keep in sync with Portfolio.Domain.
 export type Profile = {
   name: string;
@@ -17,6 +19,7 @@ export type Profile = {
   linkedin: string;
   portrait: string;
 };
+export type ProjectSection = { title: string; text: string };
 export type ProjectLink = { label: string; url: string };
 export type Project = {
   id: string;
@@ -24,6 +27,7 @@ export type Project = {
   category: string;
   description: string;
   details: string;
+  sections?: ProjectSection[];
   year: string;
   status: string;
   url: string;
@@ -150,4 +154,34 @@ export type PageMetadata = {
   siteName: string;
   published: string | null;
   structuredData: Record<string, unknown> | null;
+  /** Language of the page (es, en) and its Open Graph locale (es_ES, en_US). */
+  language: ApiLanguage;
+  locale: string;
+  /** The page in each language it exists in, plus x-default; empty for pages that are not indexed. */
+  alternates: { language: string; url: string }[];
 };
+
+export type ApiLanguage = Language;
+export type ApiProblem = {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  error: string;
+  code: string;
+  traceId: string;
+  language: ApiLanguage;
+};
+export type ErrorRecord = {
+  id: string;
+  occurredAt: string;
+  code: string;
+  status: number | null;
+  traceId: string;
+  method: string;
+  endpoint: string;
+  exceptionType: string | null;
+  message: string;
+  source?: 'http' | 'dependency' | 'background' | 'storage';
+};
+export type ErrorHistory = { language: ApiLanguage; entries: ErrorRecord[]; message: string };

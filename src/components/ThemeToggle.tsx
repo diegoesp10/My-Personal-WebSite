@@ -1,6 +1,7 @@
 import { useState, type MouseEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { Moon, Sun } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 type Theme = 'light' | 'dark';
 
@@ -10,6 +11,7 @@ const current = (): Theme =>
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(current);
+  const { t } = useLanguage();
   const next: Theme = theme === 'dark' ? 'light' : 'dark';
 
   const apply = () => {
@@ -54,8 +56,8 @@ export function ThemeToggle() {
     <button
       type="button"
       className="icon-button theme-toggle"
-      aria-label={next === 'dark' ? 'Activar tema oscuro' : 'Activar tema claro'}
-      title={next === 'dark' ? 'Tema oscuro' : 'Tema claro'}
+      aria-label={next === 'dark' ? t.theme.toDark : t.theme.toLight}
+      title={next === 'dark' ? t.theme.dark : t.theme.light}
       onClick={toggle}
     >
       {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}

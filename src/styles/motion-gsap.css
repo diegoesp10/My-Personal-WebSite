@@ -1,0 +1,82 @@
+/* Motion driven by GSAP and Lenis (src/motion). */
+
+/* Brand intro (components/Preloader.tsx): fixed palette, the same in both themes. */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--code-bg);
+  color: var(--code-text);
+  clip-path: inset(0% 0% 0% 0%);
+}
+
+.preloader-mark {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.06em;
+  overflow: hidden;
+  font-size: clamp(4.5rem, 16vw, 10rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+}
+
+.preloader-mark span,
+.preloader-mark i {
+  display: block;
+}
+
+.preloader-mark i {
+  width: 0.2em;
+  height: 0.2em;
+  margin-bottom: 0.08em;
+  border-radius: 50%;
+  background: var(--band-bg);
+}
+
+.preloader-meta {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: max(28px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: color-mix(in srgb, var(--code-text) 60%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.preloader-meta [aria-hidden],
+.preloader-meta span span {
+  color: var(--code-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Titles split by GSAP (motion/useTextReveal.ts): their block skips the CSS reveal. */
+.reveal-on [data-reveal].reveal-by-text {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+.split-line {
+  padding-bottom: 0.06em;
+}
+
+/* Reading progress under the header (components/Header.tsx). */
+.scroll-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}

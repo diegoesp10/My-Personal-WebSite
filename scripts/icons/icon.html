@@ -1,0 +1,42 @@
+<!doctype html>
+<!-- Brand icon rendered by make-icons.mjs at every size the site publishes. Parameters:
+     shape=rounded (transparent corners, like favicon.svg) or full (square, for Apple and maskable icons)
+     scale=0..1 (size of the letter inside the square; maskable icons keep it inside the safe zone). -->
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: transparent;
+      }
+      svg {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect id="tile" width="64" height="64" rx="16" fill="#ed522b" />
+      <g id="glyph">
+        <path d="M17 15h13c24 0 24 34 0 34H17zm10 9v16h4c11 0 11-16 0-16z" fill="#f2f0e9" />
+        <circle cx="50" cy="45" r="4" fill="#1b0d06" />
+      </g>
+    </svg>
+    <script>
+      const params = new URLSearchParams(location.search);
+      if (params.get('shape') === 'full') document.getElementById('tile').setAttribute('rx', '0');
+      const scale = Number(params.get('scale') || 1);
+      const offset = (64 - 64 * scale) / 2;
+      document
+        .getElementById('glyph')
+        .setAttribute('transform', `translate(${offset} ${offset}) scale(${scale})`);
+    </script>
+  </body>
+</html>

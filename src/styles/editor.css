@@ -298,3 +298,50 @@
     align-items: flex-start;
   }
 }
+
+.error-history-controls {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 24px 0;
+}
+.error-history-controls .form-field {
+  min-width: 0;
+  max-width: 100%;
+}
+.error-history-entry {
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.error-history-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+}
+.error-history-entry dl {
+  margin: 16px 0 0;
+}
+.error-history-entry dt {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+.error-history-entry dd {
+  margin: 4px 0 12px;
+}
+.error-history code,
+.error-history strong,
+.message {
+  overflow-wrap: anywhere;
+}
+.project-sections-editor {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.project-section-fields {
+  display: grid;
+  gap: 16px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}

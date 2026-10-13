@@ -5,13 +5,16 @@ import { ContactBand, Tags } from '../components/Blocks';
 import { ProjectVisual } from '../components/ProjectCard';
 import { usePortfolio } from '../data/PortfolioContext';
 import { isGitHubUrl, safeUrl } from '../lib/api';
-import { formatPeriod, paragraphs } from '../lib/format';
+import { useLanguage } from '../i18n/LanguageContext';
+import { paragraphs, useFormat } from '../lib/format';
 import { companyName, positionAnchor, positionOf } from '../lib/portfolio';
 import NotFoundPage from './NotFoundPage';
 
 export default function ProjectPage() {
   const { id } = useParams();
   const data = usePortfolio();
+  const { t } = useLanguage();
+  const format = useFormat();
   const index = data.projects.findIndex((project) => project.id === id);
   if (index < 0) return <NotFoundPage what="proyecto" />;
 
@@ -22,23 +25,23 @@ export default function ProjectPage() {
   const links = project.links.filter((link) => safeUrl(link.url));
   const position = positionOf(data, project);
   const facts: [string, string][] = [
-    ['Empresa', position ? companyName(position.company) : ''],
-    ['Categoría', project.category],
-    ['Año', project.year],
-    ['Estado', project.status],
+    [t.project.company, position ? companyName(position.company) : ''],
+    [t.project.category, project.category],
+    [t.project.year, project.year],
+    [t.project.status, project.status],
   ];
 
   return (
     <>
       <article>
         <header className="shell project-header">
-          <nav className="breadcrumb" aria-label="Ruta">
+          <nav className="breadcrumb" aria-label={t.project.breadcrumb}>
             <Link to="/proyectos">
-              <ArrowLeft size={15} /> Proyectos
+              <ArrowLeft size={15} /> {t.project.back}
             </Link>
           </nav>
           <p className="eyebrow">
-            {position && `Proyecto en ${companyName(position.company)} · `}
+            {position && t.project.eyebrowAt(companyName(position.company))}
             {project.category}
             {project.status && ` · ${project.status}`}
           </p>
@@ -48,7 +51,7 @@ export default function ProjectPage() {
             <div className="page-actions">
               {site && (
                 <a className="button" href={site} target="_blank" rel="noreferrer">
-                  <Globe size={17} /> Visitar la web <ArrowUpRight size={15} />
+                  <Globe size={17} /> {t.project.visit} <ArrowUpRight size={15} />
                 </a>
               )}
               {links.map((link, i) => (
@@ -77,22 +80,34 @@ export default function ProjectPage() {
               <aside className="context-note">
                 <Building2 size={18} aria-hidden="true" />
                 <p>
-                  Trabajo realizado en <strong>{position.company}</strong> como {position.role} (
-                  {formatPeriod(position.start, position.end)}). El producto y el código pertenecen
-                  a la empresa y a sus clientes; aquí describo mi papel.{' '}
+                  {t.project.contextAt} <strong>{position.company}</strong> {t.project.contextAs}{' '}
+                  {position.role} ({format.period(position.start, position.end)}).{' '}
+                  {t.project.contextNote}{' '}
                   <Link className="inline-link" to={`/experiencia#${positionAnchor(position.id)}`}>
-                    Ver esa etapa en mi experiencia
+                    {t.project.contextLink}
                   </Link>
                 </p>
               </aside>
             )}
-            <h2 className="mini-title">Sobre el proyecto</h2>
+            <h2 className="mini-title">{t.project.about}</h2>
             {paragraphs(project.details).map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
+            {project.sections?.map((section, index) => (
+              <section
+                className="project-case-section"
+                key={`${index}-${section.title}`}
+                aria-labelledby={`case-section-${index}`}
+              >
+                <h2 id={`case-section-${index}`}>{section.title}</h2>
+                {paragraphs(section.text).map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </section>
+            ))}
             {project.highlights.length > 0 && (
               <>
-                <h2 className="mini-title">Lo más destacado</h2>
+                <h2 className="mini-title">{t.project.highlights}</h2>
                 <ul className="check-list">
                   {project.highlights.map((highlight) => (
                     <li key={highlight}>
@@ -104,7 +119,7 @@ export default function ProjectPage() {
               </>
             )}
           </div>
-          <aside className="fact-sheet" aria-label="Ficha del proyecto">
+          <aside className="fact-sheet" aria-label={t.project.sheet}>
             <dl>
               {facts.map(
                 ([label, value]) =>
@@ -118,18 +133,18 @@ export default function ProjectPage() {
             </dl>
             {project.tags.length > 0 && (
               <>
-                <p className="fact-label">Tecnologías</p>
+                <p className="fact-label">{t.project.technologies}</p>
                 <Tags items={project.tags} />
               </>
             )}
           </aside>
         </div>
 
-        <nav className="shell pager" aria-label="Otros proyectos">
+        <nav className="shell pager" aria-label={t.project.others}>
           {previous ? (
             <Link to={`/proyectos/${previous.id}`} rel="prev">
               <span>
-                <ArrowLeft size={15} /> Anterior
+                <ArrowLeft size={15} /> {t.project.previous}
               </span>
               {previous.title}
             </Link>
@@ -139,7 +154,7 @@ export default function ProjectPage() {
           {next && (
             <Link to={`/proyectos/${next.id}`} rel="next" className="pager-next">
               <span>
-                Siguiente <ArrowRight size={15} />
+                {t.project.next} <ArrowRight size={15} />
               </span>
               {next.title}
             </Link>

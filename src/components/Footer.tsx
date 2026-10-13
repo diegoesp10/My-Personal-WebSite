@@ -1,5 +1,8 @@
 import { Link } from './Link';
 import { ArrowUpRight, Settings2 } from 'lucide-react';
+import { openCookiePreferences } from '../consent/consent';
+import { useLanguage } from '../i18n/LanguageContext';
+import { legalLinks } from '../legal/links';
 import { safeUrl } from '../lib/api';
 import type { Portfolio } from '../lib/types';
 import { BrandMark } from './Brand';
@@ -7,6 +10,7 @@ import { navigation } from './Header';
 
 export function Footer({ data, canEdit }: { data: Portfolio; canEdit: boolean }) {
   const p = data.profile;
+  const { t } = useLanguage();
   const thisSite = data.projects.find((project) => project.id === 'portfolio');
   const external: [string, string | undefined][] = [
     ['GitHub', safeUrl(p.github)],
@@ -17,7 +21,7 @@ export function Footer({ data, canEdit }: { data: Portfolio; canEdit: boolean })
       <div className="shell">
         <div className="footer-top">
           <div className="footer-brand">
-            <Link to="/" className="brand" aria-label="Inicio">
+            <Link to="/" className="brand" aria-label={t.nav.home}>
               <BrandMark />
             </Link>
             <p>
@@ -29,25 +33,25 @@ export function Footer({ data, canEdit }: { data: Portfolio; canEdit: boolean })
               </span>
             </p>
           </div>
-          <nav className="footer-nav" aria-label="Pie de página">
+          <nav className="footer-nav" aria-label={t.footer.label}>
             <div>
-              <h2>Páginas</h2>
+              <h2>{t.footer.pages}</h2>
               <ul>
                 <li>
-                  <Link to="/">Inicio</Link>
+                  <Link to="/">{t.nav.home}</Link>
                 </li>
-                {navigation.map(([to, label]) => (
+                {navigation.map(([to, key]) => (
                   <li key={to}>
-                    <Link to={to}>{label}</Link>
+                    <Link to={to}>{t.nav[key]}</Link>
                   </li>
                 ))}
                 <li>
-                  <Link to="/contacto">Contacto</Link>
+                  <Link to="/contacto">{t.nav.contacto}</Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h2>En la red</h2>
+              <h2>{t.footer.elsewhere}</h2>
               <ul>
                 {external.map(
                   ([label, url]) =>
@@ -61,32 +65,42 @@ export function Footer({ data, canEdit }: { data: Portfolio; canEdit: boolean })
                 )}
                 {p.email && (
                   <li>
-                    <a href={`mailto:${p.email}`}>Correo</a>
+                    <a href={`mailto:${p.email}`}>{t.footer.email}</a>
                   </li>
                 )}
               </ul>
             </div>
           </nav>
         </div>
+        <nav className="footer-legal" aria-label={t.footer.legal}>
+          {legalLinks.map((slug) => (
+            <Link key={slug} to={`/legal/${slug}`}>
+              {t.legal.short[slug]}
+            </Link>
+          ))}
+          <button type="button" onClick={openCookiePreferences}>
+            {t.footer.cookies}
+          </button>
+        </nav>
         <div className="footer-bottom">
           <span>
             © {new Date().getFullYear()} {p.name}
           </span>
           <Link to="/visitas" className="footer-live">
-            <span className="pulse" aria-hidden="true" /> Mapa de visitas en directo
+            <span className="pulse" aria-hidden="true" /> {t.footer.live}
           </Link>
           <span>
-            Hecho con ASP.NET Core y React
+            {t.footer.madeWith}
             {thisSite && (
               <>
                 {' · '}
-                <Link to={`/proyectos/${thisSite.id}`}>cómo está hecha esta web</Link>
+                <Link to={`/proyectos/${thisSite.id}`}>{t.footer.howBuilt}</Link>
               </>
             )}
           </span>
           {canEdit && (
             <Link to="/editor" className="editor-link">
-              <Settings2 size={14} /> Editar contenido
+              <Settings2 size={14} /> {t.footer.edit}
             </Link>
           )}
         </div>

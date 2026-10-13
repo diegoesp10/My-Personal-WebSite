@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { landMask } from '../assets/land-mask';
+import { useLanguage } from '../i18n/LanguageContext';
+import type { Language } from '../i18n/languages';
 import type { VisitLocation } from '../lib/types';
 
 export type GlobePlace = { latitude: number; longitude: number; label: string };
@@ -78,6 +80,7 @@ export function Globe({
   focus?: GlobeFocus;
   label: string;
 }) {
+  const { language, t } = useLanguage();
   const box = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const placesRef = useRef(places);
@@ -482,23 +485,17 @@ export function Globe({
 
   return (
     <div ref={box} className="globe">
-      <canvas
-        ref={canvas}
-        role="img"
-        aria-label={label}
-        tabIndex={0}
-        title="Arrastra para girar el globo · flechas del teclado"
-      />
+      <canvas ref={canvas} role="img" aria-label={label} tabIndex={0} title={t.visits.globeTitle} />
       {hovered && (
         <div
           className="globe-tooltip"
           style={{ left: hovered.x, top: hovered.y - hovered.radius - 10 }}
           role="status"
         >
-          <strong>{hovered.place.city || regionName(hovered.place.country)}</strong>
+          <strong>{hovered.place.city || regionName(hovered.place.country, language)}</strong>
           <span>
-            {hovered.place.city ? `${regionName(hovered.place.country)} · ` : ''}
-            {hovered.place.visitors} {hovered.place.visitors === 1 ? 'visitante' : 'visitantes'}
+            {hovered.place.city ? `${regionName(hovered.place.country, language)} · ` : ''}
+            {t.visits.visitorCount(hovered.place.visitors)}
           </span>
         </div>
       )}
@@ -506,12 +503,15 @@ export function Globe({
   );
 }
 
-const regions = new Intl.DisplayNames(['es'], { type: 'region' });
+const regions = new Map<Language, Intl.DisplayNames>();
 
-/** ES → España */
-export function regionName(code: string) {
+/** ES → España · Spain */
+export function regionName(code: string, language: Language) {
   try {
-    return regions.of(code) ?? code;
+    let names = regions.get(language);
+    if (!names)
+      regions.set(language, (names = new Intl.DisplayNames([language], { type: 'region' })));
+    return names.of(code) ?? code;
   } catch {
     return code;
   }

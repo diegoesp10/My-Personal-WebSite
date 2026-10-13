@@ -4,19 +4,23 @@ import { Globe, regionName, type GlobeFocus, type GlobePlace } from '../componen
 import { navigation } from '../components/Header';
 import { usePortfolio } from '../data/PortfolioContext';
 import { useVisitors } from '../data/visits';
-import { formatDate, timeAgo } from '../lib/format';
+import { useLanguage } from '../i18n/LanguageContext';
+import type { Messages } from '../i18n/es';
+import { emphasis, useFormat } from '../lib/format';
 import type { Portfolio, VisitLocation } from '../lib/types';
 
 // Where the arcs end: the base shown in the profile.
 const home: GlobePlace = { latitude: 43.36, longitude: -5.85, label: 'Oviedo' };
-const number = (value: number) => value.toLocaleString('es-ES');
 
-/** Friendly name for a visited path: /proyectos/murmur → the project title. */
-function pageLabel(path: string, data: Portfolio) {
-  if (path === '/') return 'Inicio';
+/**
+ * Friendly name for a visited path: /proyectos/murmur → the project title. Paths arrive without a language prefix,
+ * so both versions of a page count together.
+ */
+function pageLabel(path: string, data: Portfolio, t: Messages) {
+  if (path === '/') return t.nav.home;
   const section = navigation.find(([to]) => to === path);
-  if (section) return section[1];
-  if (path === '/contacto') return 'Contacto';
+  if (section) return t.nav[section[1]];
+  if (path === '/contacto') return t.nav.contacto;
   const [, kind, id] = path.split('/');
   if (kind === 'proyectos')
     return data.projects.find((project) => project.id === id)?.title ?? path;
@@ -27,6 +31,9 @@ function pageLabel(path: string, data: Portfolio) {
 export default function VisitsPage() {
   const data = usePortfolio();
   const { summary, failed } = useVisitors();
+  const { language, t } = useLanguage();
+  const format = useFormat();
+  const number = format.number;
   const [focus, setFocus] = useState<GlobeFocus>();
   const places = summary?.locations ?? [];
   const days = summary?.days ?? [];
@@ -46,26 +53,20 @@ export default function VisitsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Visitas · en directo"
-        title={
-          <>
-            Quién pasa <em className="accent-serif">por aquí</em>
-          </>
-        }
-        lead="Cada punto naranja es una ciudad desde la que alguien ha abierto esta web, unida con Oviedo. Sin cookies y sin guardar direcciones IP: solo la ciudad aproximada y recuentos."
+        eyebrow={t.visits.eyebrow}
+        title={emphasis(t.visits.title)}
+        lead={t.visits.lead}
       />
 
       <section className="shell section-tight">
         {failed && !summary && (
           <div className="notice">
-            <p>
-              No he podido cargar las estadísticas ahora mismo. Vuelve a intentarlo en un momento.
-            </p>
+            <p>{t.visits.failed}</p>
           </div>
         )}
         {summary && !summary.enabled && (
           <div className="notice">
-            <p>Las estadísticas de visitas están desactivadas.</p>
+            <p>{t.visits.disabled}</p>
           </div>
         )}
 
@@ -75,47 +76,43 @@ export default function VisitsPage() {
               places={places}
               home={home}
               focus={focus}
-              label={`Globo con ${places.length} ciudades desde las que se ha visitado la web`}
+              label={t.visits.globe(places.length)}
             />
             <p className="observatory-hint">
-              Arrastra para girar
-              <span className="hint-pointer"> · pasa por encima de un punto</span>
+              {t.visits.drag}
+              <span className="hint-pointer">{t.visits.hover}</span>
             </p>
           </div>
           <div className="observatory-panel">
             <p className="live-pill">
               <span className="pulse" aria-hidden="true" />
               {summary
-                ? `${number(summary.online)} ${summary.online === 1 ? 'persona' : 'personas'} ahora mismo`
-                : 'Conectando…'}
+                ? t.visits.online(number(summary.online), summary.online)
+                : t.visits.connecting}
             </p>
             <dl className="observatory-stats">
               <div>
-                <dt>Visitas</dt>
+                <dt>{t.visits.visits}</dt>
                 <dd>{summary ? number(summary.visits) : '—'}</dd>
               </div>
               <div>
-                <dt>Visitantes</dt>
+                <dt>{t.visits.visitors}</dt>
                 <dd>{summary ? number(summary.visitors) : '—'}</dd>
               </div>
               <div>
-                <dt>Países</dt>
+                <dt>{t.visits.countries}</dt>
                 <dd>{summary ? number(summary.countries.length) : '—'}</dd>
               </div>
               <div>
-                <dt>Hoy</dt>
+                <dt>{t.visits.today}</dt>
                 <dd>{summary?.today ? number(summary.today.visitors) : '—'}</dd>
               </div>
             </dl>
-            <div
-              className="spark"
-              role="img"
-              aria-label="Visitantes por día en los últimos 30 días"
-            >
+            <div className="spark" role="img" aria-label={t.visits.spark}>
               {days.map((day, index) => (
                 <span
                   key={day.date}
-                  title={`${formatDate(day.date)}: ${day.visitors} ${day.visitors === 1 ? 'visitante' : 'visitantes'}`}
+                  title={`${format.date(day.date)}: ${t.visits.visitorCount(day.visitors)}`}
                   style={
                     { '--h': `${(day.visitors / busiest) * 100}%`, '--i': index } as CSSProperties
                   }
@@ -123,8 +120,8 @@ export default function VisitsPage() {
               ))}
             </div>
             <p className="spark-caption">
-              <span>Últimos 30 días</span>
-              {summary?.since && <span>desde {formatDate(summary.since)}</span>}
+              <span>{t.visits.lastDays}</span>
+              {summary?.since && <span>{t.visits.since(format.date(summary.since))}</span>}
             </p>
           </div>
         </div>
@@ -132,7 +129,7 @@ export default function VisitsPage() {
         <div className="visits-grid">
           <section aria-labelledby="visits-countries" data-reveal>
             <h2 className="mini-title" id="visits-countries">
-              Países
+              {t.visits.countries}
             </h2>
             {summary?.countries.length ? (
               <ol className="rank-list">
@@ -140,7 +137,7 @@ export default function VisitsPage() {
                   <li key={country.name}>
                     <button type="button" onClick={() => show(placeOf(country.name))}>
                       <span className="country-code">{country.name}</span>
-                      <span className="rank-name">{regionName(country.name)}</span>
+                      <span className="rank-name">{regionName(country.name, language)}</span>
                       <span className="rank-bar" aria-hidden="true">
                         <i style={{ width: `${(country.count / topCountry) * 100}%` }} />
                       </span>
@@ -150,7 +147,7 @@ export default function VisitsPage() {
                 ))}
               </ol>
             ) : (
-              <p className="muted">Aún no hay visitas con ubicación.</p>
+              <p className="muted">{t.visits.noCountries}</p>
             )}
           </section>
 
@@ -160,7 +157,7 @@ export default function VisitsPage() {
             style={{ '--i': 1 } as CSSProperties}
           >
             <h2 className="mini-title" id="visits-recent">
-              Últimas visitas
+              {t.visits.recent}
             </h2>
             {summary?.recent.length ? (
               <ol className="recent-list">
@@ -175,33 +172,35 @@ export default function VisitsPage() {
                       <span className="recent-place">
                         <strong>
                           {visit.city ||
-                            (visit.country ? regionName(visit.country) : 'Ubicación desconocida')}
+                            (visit.country
+                              ? regionName(visit.country, language)
+                              : t.visits.unknown)}
                         </strong>
-                        <span>{pageLabel(visit.path, data)}</span>
+                        <span>{pageLabel(visit.path, data, t)}</span>
                       </span>
-                      <time dateTime={visit.at}>{timeAgo(visit.at)}</time>
+                      <time dateTime={visit.at}>{format.timeAgo(visit.at)}</time>
                     </button>
                   </li>
                 ))}
               </ol>
             ) : (
-              <p className="muted">Todavía no hay visitas registradas.</p>
+              <p className="muted">{t.visits.noRecent}</p>
             )}
           </section>
 
           <section aria-labelledby="visits-pages" data-reveal style={{ '--i': 2 } as CSSProperties}>
             <h2 className="mini-title" id="visits-pages">
-              Lo más visto
+              {t.visits.top}
             </h2>
             <ol className="plain-rank">
               {(summary?.pages ?? []).map((page) => (
                 <li key={page.name}>
-                  <span>{pageLabel(page.name, data)}</span>
+                  <span>{pageLabel(page.name, data, t)}</span>
                   <b>{number(page.count)}</b>
                 </li>
               ))}
             </ol>
-            <h2 className="mini-title spaced">Llegan desde</h2>
+            <h2 className="mini-title spaced">{t.visits.referrers}</h2>
             {summary?.referrers.length ? (
               <ol className="plain-rank">
                 {summary.referrers.map((referrer) => (
@@ -212,18 +211,17 @@ export default function VisitsPage() {
                 ))}
               </ol>
             ) : (
-              <p className="muted">Por ahora, entradas directas.</p>
+              <p className="muted">{t.visits.direct}</p>
             )}
           </section>
         </div>
 
         <p className="footnote">
-          Ubicación aproximada a nivel de ciudad, obtenida al recibir la visita (Cloudflare o{' '}
+          {t.visits.noteBefore}{' '}
           <a className="inline-link" href="https://db-ip.com" target="_blank" rel="noreferrer">
             IP Geolocation by DB-IP
           </a>
-          , CC BY 4.0). No se guardan direcciones IP ni se usan cookies; un visitante cuenta una vez
-          al día y quien activa «No rastrear» no se cuenta. Se actualiza cada 30 segundos.
+          {t.visits.noteAfter}
         </p>
       </section>
     </>

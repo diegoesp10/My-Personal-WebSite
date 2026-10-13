@@ -1,8 +1,12 @@
 import type { ReactNode } from 'react';
 import { Link } from './Link';
 import { ArrowRight, ArrowUpRight, Github, Linkedin, Mail, Phone } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { safeUrl, telUrl } from '../lib/api';
+import { emphasis } from '../lib/format';
 import type { Profile } from '../lib/types';
+import { DotField } from './DotField';
+import Magnet from './reactbits/Magnet';
 
 export function PageHeader({
   eyebrow,
@@ -68,24 +72,28 @@ export function Tags({ items, limit }: { items: string[]; limit?: number }) {
 
 export function ContactBand({ profile }: { profile: Profile }) {
   const phone = telUrl(profile.phone);
+  const { t } = useLanguage();
   return (
     <section className="contact-band" aria-labelledby="contact-band-title">
+      <DotField color="--band-ink" />
       <div className="shell contact-band-inner" data-reveal>
         <div>
-          <p className="eyebrow">Contacto</p>
-          <h2 id="contact-band-title">
-            ¿Tu proyecto necesita <em className="accent-serif">un buen backend?</em>
+          <p className="eyebrow">{t.blocks.contactEyebrow}</p>
+          <h2 id="contact-band-title" data-split>
+            {emphasis(t.blocks.contactTitle)}
           </h2>
         </div>
         <div className="contact-band-actions">
           {profile.email && (
-            <a className="button button-light" href={`mailto:${profile.email}`}>
-              <Mail size={17} /> Escríbeme
-            </a>
+            <Magnet padding={70} magnetStrength={3}>
+              <a className="button button-light" href={`mailto:${profile.email}`}>
+                <Mail size={17} /> {t.blocks.writeMe}
+              </a>
+            </Magnet>
           )}
           {phone && (
             <a className="button button-outline-dark" href={phone}>
-              <Phone size={17} /> Llámame
+              <Phone size={17} /> {t.blocks.callMe}
             </a>
           )}
           {safeUrl(profile.linkedin) && (
@@ -105,6 +113,7 @@ export function ContactBand({ profile }: { profile: Profile }) {
 }
 
 export function SocialLinks({ profile }: { profile: Profile }) {
+  const { t } = useLanguage();
   return (
     <ul className="social-links">
       {safeUrl(profile.github) && (
@@ -128,7 +137,7 @@ export function SocialLinks({ profile }: { profile: Profile }) {
       )}
       {profile.email && (
         <li>
-          <a href={`mailto:${profile.email}`} aria-label={`Correo: ${profile.email}`}>
+          <a href={`mailto:${profile.email}`} aria-label={t.blocks.emailLabel(profile.email)}>
             <Mail size={18} />
           </a>
         </li>
