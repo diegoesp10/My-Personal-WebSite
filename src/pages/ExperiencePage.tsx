@@ -14,7 +14,8 @@ import { PageHeader, Tags } from '../components/Blocks';
 import { usePortfolio } from '../data/PortfolioContext';
 import { safeUrl, telUrl } from '../lib/api';
 import { mobilityDetails, positionAnchor } from '../lib/portfolio';
-import { formatDuration, formatMonth, formatPeriod, paragraphs } from '../lib/format';
+import { useLanguage } from '../i18n/LanguageContext';
+import { emphasis, paragraphs, useFormat } from '../lib/format';
 
 const shortUrl = (url: string) => {
   const trimmed = url.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/+$/, '');
@@ -28,7 +29,9 @@ const shortUrl = (url: string) => {
 export default function ExperiencePage() {
   const data = usePortfolio();
   const p = data.profile;
-  const mobility = mobilityDetails(p);
+  const { t } = useLanguage();
+  const format = useFormat();
+  const mobility = mobilityDetails(p, t);
   const github = safeUrl(p.github);
   const linkedin = safeUrl(p.linkedin);
   const projectsOf = (positionId: string) =>
@@ -37,19 +40,15 @@ export default function ExperiencePage() {
   return (
     <>
       <PageHeader
-        eyebrow="Trayectoria · CV online"
-        title={
-          <>
-            Experiencia <em className="accent-serif">y CV</em>
-          </>
-        }
+        eyebrow={t.experience.eyebrow}
+        title={emphasis(t.experience.title)}
         lead={p.intro}
       >
         <button type="button" className="button" onClick={() => window.print()}>
-          <Printer size={17} /> Imprimir o guardar en PDF
+          <Printer size={17} /> {t.experience.print}
         </button>
         <Link className="button button-ghost" to="/contacto">
-          Contactar
+          {t.experience.contact}
         </Link>
       </PageHeader>
 
@@ -77,33 +76,33 @@ export default function ExperiencePage() {
             {p.location && (
               <div>
                 <dt>
-                  <MapPin size={15} /> Ubicación
+                  <MapPin size={15} /> {t.experience.location}
                 </dt>
                 <dd>{p.location}</dd>
               </div>
             )}
             {p.availability && (
               <div>
-                <dt>Modalidad</dt>
+                <dt>{t.experience.availability}</dt>
                 <dd>{p.availability}</dd>
               </div>
             )}
             {p.languages && (
               <div>
-                <dt>Idiomas</dt>
+                <dt>{t.experience.languages}</dt>
                 <dd>{p.languages}</dd>
               </div>
             )}
             {mobility.length > 0 && (
               <div>
-                <dt>Movilidad</dt>
+                <dt>{t.experience.mobility}</dt>
                 <dd>{mobility.join(' · ')}</dd>
               </div>
             )}
             {p.email && (
               <div>
                 <dt>
-                  <Mail size={15} /> Correo
+                  <Mail size={15} /> {t.experience.email}
                 </dt>
                 <dd>
                   <a className="inline-link" href={`mailto:${p.email}`}>
@@ -116,7 +115,7 @@ export default function ExperiencePage() {
             {telUrl(p.phone) && (
               <div>
                 <dt>
-                  <Phone size={15} /> Teléfono
+                  <Phone size={15} /> {t.experience.phone}
                 </dt>
                 <dd>
                   <a className="inline-link" href={telUrl(p.phone)}>
@@ -143,7 +142,7 @@ export default function ExperiencePage() {
         <div className="cv-main">
           <section aria-labelledby="cv-profile" className="cv-section">
             <h2 id="cv-profile" className="cv-heading">
-              Perfil
+              {t.experience.profile}
             </h2>
             <div className="prose">
               {paragraphs(p.bio).map((paragraph) => (
@@ -154,7 +153,7 @@ export default function ExperiencePage() {
 
           <section aria-labelledby="cv-experience" className="cv-section">
             <h2 id="cv-experience" className="cv-heading">
-              <Briefcase size={18} aria-hidden="true" /> Experiencia profesional
+              <Briefcase size={18} aria-hidden="true" /> {t.experience.positions}
             </h2>
             <ol className="timeline">
               {data.experience.map((role) => {
@@ -167,8 +166,8 @@ export default function ExperiencePage() {
                     data-reveal
                   >
                     <div className="timeline-when">
-                      <span>{formatPeriod(role.start, role.end)}</span>
-                      <small>{formatDuration(role.start, role.end)}</small>
+                      <span>{format.period(role.start, role.end)}</span>
+                      <small>{format.duration(role.start, role.end)}</small>
                     </div>
                     <div className="timeline-what">
                       <h3>{role.role}</h3>
@@ -193,7 +192,7 @@ export default function ExperiencePage() {
                       <Tags items={role.stack} />
                       {projectsOf(role.id).length > 0 && (
                         <div className="timeline-projects">
-                          <p className="fact-label">Proyectos de esta etapa</p>
+                          <p className="fact-label">{t.experience.stageProjects}</p>
                           <ul>
                             {projectsOf(role.id).map((project) => (
                               <li key={project.id}>
@@ -216,7 +215,7 @@ export default function ExperiencePage() {
 
           <section aria-labelledby="cv-skills" className="cv-section">
             <h2 id="cv-skills" className="cv-heading">
-              Competencias técnicas
+              {t.experience.skills}
             </h2>
             <div className="skill-grid">
               {data.skills.map((skill, index) => (
@@ -232,13 +231,15 @@ export default function ExperiencePage() {
           {data.education.length > 0 && (
             <section aria-labelledby="cv-education" className="cv-section">
               <h2 id="cv-education" className="cv-heading">
-                <GraduationCap size={18} aria-hidden="true" /> Formación
+                <GraduationCap size={18} aria-hidden="true" /> {t.experience.education}
               </h2>
               <ul className="education-list">
                 {data.education.map((item) => (
                   <li key={item.id}>
                     <span className="role-period">
-                      {[formatMonth(item.start), formatMonth(item.end)].filter(Boolean).join(' — ')}
+                      {[format.month(item.start), format.month(item.end)]
+                        .filter(Boolean)
+                        .join(' — ')}
                     </span>
                     <strong>{item.title}</strong>
                     <span>{[item.center, item.location].filter(Boolean).join(' · ')}</span>
@@ -251,7 +252,7 @@ export default function ExperiencePage() {
           {p.personal && (
             <section aria-labelledby="cv-other" className="cv-section">
               <h2 id="cv-other" className="cv-heading">
-                Otros
+                {t.experience.other}
               </h2>
               <p className="muted">{p.personal}</p>
             </section>

@@ -5,11 +5,14 @@ import { CommitList, LanguageBar } from '../components/GitHubWidgets';
 import { usePortfolio } from '../data/PortfolioContext';
 import { languageColor, useGitHub } from '../data/useGitHub';
 import { repositoryKey, safeUrl } from '../lib/api';
-import { timeAgo } from '../lib/format';
+import { useLanguage } from '../i18n/LanguageContext';
+import { emphasis, useFormat } from '../lib/format';
 
 export default function GitHubPage() {
   const data = usePortfolio();
   const { activity, loading, failed } = useGitHub();
+  const { t } = useLanguage();
+  const format = useFormat();
   const profileUrl = safeUrl(data.profile.github);
 
   // A repository linked from a project gets a shortcut to its case study.
@@ -21,25 +24,17 @@ export default function GitHubPage() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="Código abierto"
-        title={
-          <>
-            Lo que voy haciendo <em className="accent-serif">en GitHub</em>
-          </>
-        }
-        lead="Mis repositorios públicos y la actividad más reciente, leídos directamente de GitHub. Lo que está en producción privada lo explico en las fichas de proyecto."
-      >
+      <PageHeader eyebrow={t.github.eyebrow} title={emphasis(t.github.title)} lead={t.github.lead}>
         {profileUrl && (
           <a className="button" href={profileUrl} target="_blank" rel="noreferrer">
-            <Github size={17} /> Ver perfil en GitHub <ArrowUpRight size={15} />
+            <Github size={17} /> {t.github.profile} <ArrowUpRight size={15} />
           </a>
         )}
       </PageHeader>
 
       <section className="shell section-tight">
         {loading && (
-          <div className="github-layout" aria-busy="true" aria-label="Cargando actividad de GitHub">
+          <div className="github-layout" aria-busy="true" aria-label={t.github.loading}>
             <div className="skeleton-block tall" />
             <div className="skeleton-block tall" />
           </div>
@@ -47,13 +42,13 @@ export default function GitHubPage() {
         {(failed || (activity && !activity.available)) && (
           <div className="notice">
             <p>
-              Ahora mismo no puedo consultar GitHub. Puedes ver todo directamente en{' '}
+              {t.github.unavailable}{' '}
               {profileUrl ? (
                 <a className="inline-link" href={profileUrl} target="_blank" rel="noreferrer">
-                  mi perfil <ArrowUpRight size={14} />
+                  {t.github.myProfile} <ArrowUpRight size={14} />
                 </a>
               ) : (
-                'mi perfil'
+                t.github.myProfile
               )}
               .
             </p>
@@ -77,26 +72,28 @@ export default function GitHubPage() {
                 {activity.profile?.bio && <p className="muted">{activity.profile.bio}</p>}
                 <dl className="github-stats">
                   <div>
-                    <dt>Repositorios públicos</dt>
+                    <dt>{t.github.repositories}</dt>
                     <dd>{activity.profile?.publicRepositories ?? activity.repositories.length}</dd>
                   </div>
                   <div>
-                    <dt>Último push</dt>
+                    <dt>{t.github.lastPush}</dt>
                     <dd>
-                      {activity.repositories[0] ? timeAgo(activity.repositories[0].pushedAt) : '—'}
+                      {activity.repositories[0]
+                        ? format.timeAgo(activity.repositories[0].pushedAt)
+                        : '—'}
                     </dd>
                   </div>
                 </dl>
-                <h2 className="mini-title">Lenguajes</h2>
+                <h2 className="mini-title">{t.github.languages}</h2>
                 <LanguageBar languages={activity.languages} />
               </div>
               <div>
-                <h2 className="mini-title">Commits recientes</h2>
+                <h2 className="mini-title">{t.github.commits}</h2>
                 <CommitList commits={activity.recentCommits} />
               </div>
             </div>
 
-            <h2 className="mini-title repo-title">Repositorios</h2>
+            <h2 className="mini-title repo-title">{t.github.repositoriesTitle}</h2>
             <ul className="repo-grid">
               {activity.repositories.map((repository) => {
                 const project = projectByRepository.get(repositoryKey(repository.url));
@@ -113,12 +110,12 @@ export default function GitHubPage() {
                       </a>
                       {repository.isArchived && (
                         <span className="badge">
-                          <Archive size={12} /> Archivado
+                          <Archive size={12} /> {t.github.archived}
                         </span>
                       )}
                     </div>
                     <p className="repo-description">
-                      {repository.description || 'Sin descripción todavía.'}
+                      {repository.description || t.github.noDescription}
                     </p>
                     <p className="repo-meta">
                       {repository.language && (
@@ -132,19 +129,19 @@ export default function GitHubPage() {
                       )}
                       {repository.stars > 0 && (
                         <span>
-                          <Star size={13} aria-label="Estrellas" /> {repository.stars}
+                          <Star size={13} aria-label={t.github.stars} /> {repository.stars}
                         </span>
                       )}
                       {repository.forks > 0 && (
                         <span>
-                          <GitFork size={13} aria-label="Forks" /> {repository.forks}
+                          <GitFork size={13} aria-label={t.github.forks} /> {repository.forks}
                         </span>
                       )}
-                      <span>actualizado {timeAgo(repository.pushedAt)}</span>
+                      <span>{t.github.updated(format.timeAgo(repository.pushedAt))}</span>
                     </p>
                     {project && (
                       <Link className="arrow-link small" to={`/proyectos/${project.id}`}>
-                        Ficha del proyecto <ArrowRight size={14} />
+                        {t.github.caseStudy} <ArrowRight size={14} />
                       </Link>
                     )}
                   </li>
@@ -152,11 +149,9 @@ export default function GitHubPage() {
               })}
             </ul>
             <p className="footnote">
-              {activity.stale
-                ? 'GitHub no responde ahora mismo; muestro los últimos datos válidos'
-                : 'Datos de la API pública de GitHub'}
-              {activity.retrievedAt && `, consultados ${timeAgo(activity.retrievedAt)}`}. Se
-              actualizan cada 30 minutos.
+              {activity.stale ? t.github.stale : t.github.source}
+              {activity.retrievedAt && t.github.retrieved(format.timeAgo(activity.retrievedAt))}
+              {t.github.refresh}
             </p>
           </>
         )}

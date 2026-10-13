@@ -1,33 +1,17 @@
-import type { ReactNode } from 'react';
 import { Link } from '../components/Link';
 import { openCookiePreferences } from '../consent/consent';
 import type { Profile } from '../lib/types';
+import { ContactEmail, type LegalDocument } from './shared';
 
-export type LegalSection = { id: string; title: string; body: ReactNode };
-export type LegalDocument = {
-  slug: string;
-  title: string;
-  /** Name in the legal navigation and the footer. */
-  short: string;
-  lead: string;
-  sections: LegalSection[];
-};
-
-/** Date of the last review of these texts (yyyy-MM-dd). Update it whenever a text changes. */
-export const LEGAL_UPDATED = '2026-10-13';
-
-const Mail = ({ profile }: { profile: Profile }) =>
-  profile.email ? (
-    <a href={`mailto:${profile.email}`}>{profile.email}</a>
-  ) : (
-    <>el correo de contacto</>
-  );
+const Mail = ({ profile }: { profile: Profile }) => (
+  <ContactEmail profile={profile} fallback="el correo de contacto" />
+);
 
 /**
  * Legal texts of the site: legal notice (LSSI-CE), privacy policy (GDPR), cookie policy and terms of use. They
  * describe what the site actually does; personal data (name, e-mail, location) comes from the content.
  */
-export function legalDocuments(profile: Profile): LegalDocument[] {
+export function spanishDocuments(profile: Profile): LegalDocument[] {
   const owner = profile.name;
   const place = profile.location || 'España';
   return [

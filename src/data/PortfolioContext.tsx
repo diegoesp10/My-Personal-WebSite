@@ -1,38 +1,93 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
+import { languages, type Language } from '../i18n/languages';
 import { request } from '../lib/api';
 import type { Portfolio } from '../lib/types';
 
 type PortfolioState = {
+  /** Content of the current page's language; undefined while it loads. */
   data?: Portfolio;
   /** Why the content could not load (an ApiError for API failures); undefined while it loads or once loaded. */
   error?: unknown;
   /** undefined while the API is being asked whether the local editor is available. */
   canEdit: boolean | undefined;
+  /** Content of every language loaded so far (the editor edits any of them). */
+  contents: Partial<Record<Language, Portfolio>>;
+  /** Loads the content of a language if it has not been loaded yet. */
+  ensure: (language: Language) => void;
   reload: () => void;
-  replace: (data: Portfolio) => void;
+  replace: (data: Portfolio, language: Language) => void;
 };
 
 const PortfolioContext = createContext<PortfolioState | null>(null);
 
+/**
+ * Content of the site from the API, one copy per language with the same identifiers. The page's language loads
+ * first; once it is ready the other languages load in the background, so switching language is instant.
+ */
 export function PortfolioProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<Portfolio>();
-  const [error, setError] = useState<unknown>();
+  const { language } = useLanguage();
+  const [contents, setContents] = useState<Partial<Record<Language, Portfolio>>>({});
+  const [errors, setErrors] = useState<Partial<Record<Language, unknown>>>({});
   const [canEdit, setCanEdit] = useState<boolean>();
+  const requested = useRef(new Set<Language>());
 
-  const reload = useCallback(() => {
-    setError(undefined);
-    request<Portfolio>('/api/portfolio').then(setData).catch(setError);
+  const load = useCallback((code: Language) => {
+    requested.current.add(code);
+    setErrors((current) => ({ ...current, [code]: undefined }));
+    request<Portfolio>('/api/portfolio', undefined, code)
+      .then((data) => setContents((current) => ({ ...current, [code]: data })))
+      .catch((error: unknown) => {
+        requested.current.delete(code);
+        setErrors((current) => ({ ...current, [code]: error }));
+      });
   }, []);
 
+  const ensure = useCallback(
+    (code: Language) => {
+      if (!requested.current.has(code)) load(code);
+    },
+    [load],
+  );
+
+  useEffect(() => ensure(language), [ensure, language]);
+
+  const ready = Boolean(contents[language]);
   useEffect(() => {
-    reload();
+    if (ready) languages.forEach(ensure);
+  }, [ready, ensure]);
+
+  useEffect(() => {
     request<{ enabled: boolean }>('/api/editor')
       .then((r) => setCanEdit(r.enabled))
       .catch(() => setCanEdit(false));
-  }, [reload]);
+  }, []);
+
+  const replace = useCallback(
+    (data: Portfolio, code: Language) => setContents((current) => ({ ...current, [code]: data })),
+    [],
+  );
 
   return (
-    <PortfolioContext.Provider value={{ data, error, canEdit, reload, replace: setData }}>
+    <PortfolioContext.Provider
+      value={{
+        data: contents[language],
+        error: errors[language],
+        canEdit,
+        contents,
+        ensure,
+        reload: () => load(language),
+        replace,
+      }}
+    >
       {children}
     </PortfolioContext.Provider>
   );

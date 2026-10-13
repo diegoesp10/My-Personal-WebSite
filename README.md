@@ -6,11 +6,11 @@ Frontal de [diegoespinarodriguez.com](https://diegoespinarodriguez.com): porfoli
 
 ## Páginas
 
-Cada sección es una ruta propia, con su título y descripción para buscadores:
+La web está en **español e inglés**. Cada página vive bajo su idioma (`/es/proyectos`, `/en/proyectos`); la tabla muestra las rutas sin ese prefijo. Cada sección es una ruta propia, con su título y descripción para buscadores:
 
 | Ruta | Contenido |
 | --- | --- |
-| `/` | Portada: titular, retrato 3D, cinta con el stack, especialidad con el caso de rendimiento, proyectos destacados, trayectoria y últimos commits. |
+| `/es`, `/en` | Portada: titular, retrato 3D, cinta con el stack, especialidad con el caso de rendimiento, proyectos destacados, trayectoria y últimos commits. |
 | `/proyectos` | Todos los proyectos con filtro por categoría (`?categoria=` se puede compartir). |
 | `/proyectos/:id` | Ficha del proyecto: historia, puntos destacados, tecnologías y enlaces a la web y a los repositorios. |
 | `/experiencia` | CV online: perfil, experiencia, competencias y formación. Al imprimir se convierte en un CV de una columna (Guardar como PDF). |
@@ -19,9 +19,9 @@ Cada sección es una ruta propia, con su título y descripción para buscadores:
 | `/sobre-mi` | Presentación, forma de trabajar y vida fuera de la pantalla, con la tarjeta holográfica de la foto. |
 | `/diario`, `/diario/:id` | Entradas del diario. |
 | `/contacto` | Correo (con botón para copiar), teléfono, LinkedIn, GitHub y modalidad de trabajo. |
-| `/legal/aviso-legal`, `/legal/privacidad`, `/legal/cookies`, `/legal/terminos` | Textos legales (LSSI-CE y RGPD) escritos a partir de lo que hace la web, con los datos del titular tomados del contenido (`src/legal/documents.tsx`). |
+| `/legal/aviso-legal`, `/legal/privacidad`, `/legal/cookies`, `/legal/terminos` | Textos legales (LSSI-CE y RGPD) escritos a partir de lo que hace la web, con los datos del titular tomados del contenido (`src/legal/es.tsx`; la traducción de `src/legal/en.tsx` indica que prevalece la versión en español). |
 | `/error` | Página de error de la web (`?code=&status=&ref=`), fuera del layout para funcionar aunque no cargue el contenido. |
-| `/editor` | Editor local del contenido. Solo funciona con la API en Development desde este equipo. |
+| `/editor` | Editor local del contenido, sin prefijo de idioma: edita y guarda cada idioma por separado. Solo funciona con la API en Development desde este equipo. |
 
 ## Diseño
 
@@ -48,6 +48,16 @@ Cada sección es una ruta propia, con su título y descripción para buscadores:
 - Responsive desde 360 px, sin desplazamiento horizontal.
 
 ![Proyectos en modo oscuro](docs/proyectos-oscuro.jpg)
+
+## Idiomas
+
+- **Direcciones**: el primer segmento es el idioma (`src/i18n/languages.ts`). `/` lleva al idioma del navegador (Nginx con `Accept-Language`, 302) y las direcciones anteriores sin idioma (`/proyectos`…) redirigen a `/es/…` con un 301, para no perder lo indexado. `/editor`, `/api`, `/uploads` y los archivos no llevan idioma.
+- **Contexto**: la ruta raíz de `App.tsx` toma el idioma de la dirección y lo ofrece con `useLanguage()` (`src/i18n/LanguageContext.tsx`): textos de la interfaz, configuración regional y `path()` para direcciones internas. `Link` y `NavLink` añaden solos el prefijo, así que los enlaces se escriben sin él (`to="/proyectos"`).
+- **Textos de la interfaz**: `src/i18n/es.ts` define la forma de los diccionarios y `en.ts` la cumple; si falta una traducción, la compilación falla. El texto entre *asteriscos* sale con el acento en serifa (`emphasis`). Fechas, duraciones y números se escriben con `useFormat()` en el idioma de la página.
+- **Contenido**: la API guarda una copia por idioma con los mismos identificadores. `PortfolioContext` pide el idioma de la página (`?language=`) y, cuando está listo, el otro en segundo plano, así que cambiar de idioma es inmediato. En el editor se elige el idioma del contenido y al guardar se envía `language` en el cuerpo.
+- **Selector** (`components/LanguageSwitch.tsx`): en la cabecera y en el menú móvil. Abre la misma página en el otro idioma y conserva la posición del scroll.
+- **SEO**: `<html lang>` sale de la dirección (variable `$page_language` de `nginx.conf` por SSI) y React lo mantiene al navegar. La cabecera de cada página enlaza sus traducciones con `hreflang` y declara su `og:locale`; el sitemap lista las dos versiones.
+- Las visitas se cuentan sin el prefijo de idioma: las dos versiones de una página suman juntas.
 
 ## Desarrollo
 
@@ -90,7 +100,7 @@ docker compose down
 
 ## SEO
 
-Cada página llega con su título, descripción, dirección canónica, imagen para compartir y datos schema.org ya en el HTML. Los genera la API a partir del contenido (`GET /api/seo/head`) y Nginx los inserta con SSI en el `<head>` de `index.html`, en lugar del bloque de reserva. Así los leen los buscadores y las vistas previas de LinkedIn o WhatsApp, que no ejecutan JavaScript. Al navegar dentro de la web, `lib/seo.ts` pide los de la página nueva (`GET /api/seo/page`) y sustituye las etiquetas marcadas con `data-seo`. En `npm run dev` no hay SSI: la primera página también se completa desde la API. `public/robots.txt` apunta al sitemap que genera la API.
+Cada página llega con su título, descripción, dirección canónica, traducciones (`hreflang`), imagen para compartir y datos schema.org ya en el HTML, en su idioma. Los genera la API a partir del contenido (`GET /api/seo/head`) y Nginx los inserta con SSI en el `<head>` de `index.html`, en lugar del bloque de reserva. Así los leen los buscadores y las vistas previas de LinkedIn o WhatsApp, que no ejecutan JavaScript. Al navegar dentro de la web, `lib/seo.ts` pide los de la página nueva (`GET /api/seo/page`) y sustituye las etiquetas marcadas con `data-seo`. En `npm run dev` no hay SSI: la primera página también se completa desde la API. `public/robots.txt` apunta al sitemap que genera la API.
 
 ## Estructura
 
@@ -135,7 +145,7 @@ Nginx añade un nonce distinto por respuesta mediante `$request_id` (128 bits; l
 
 La cabecera se captura como una única capa durante la navegación; el fondo anterior permanece visible mientras entra la página nueva, evitando el destello negro y el texto invisible del enlace activo.
 
-Con los contenedores locales levantados, `npm run test:web` comprueba la CSP por respuesta, la caché del HTML y recursos, el SEO y la salud de la API.
+Con los contenedores locales levantados, `npm run test:web` comprueba la CSP por respuesta, la caché del HTML y recursos, el SEO, los idiomas (redirecciones, `lang` y `hreflang`) y la salud de la API.
 
 ## Ficha técnica y diagnóstico local
 

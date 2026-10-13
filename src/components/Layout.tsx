@@ -2,6 +2,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet, ScrollRestoration, useLocation } from 'react-router';
 import { CookieConsent } from '../consent/CookieConsent';
 import { usePortfolioState } from '../data/PortfolioContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { sendVisit } from '../data/visits';
 import { errorPath } from '../lib/errors';
 import { usePageMetadata } from '../lib/seo';
@@ -16,6 +17,7 @@ import { Preloader } from './Preloader';
 
 export function Layout() {
   const { data, error, canEdit } = usePortfolioState();
+  const { language, t } = useLanguage();
   const { pathname, search } = useLocation();
   const main = useRef<HTMLElement>(null);
   const firstRender = useRef(true);
@@ -41,7 +43,8 @@ export function Layout() {
   }, [pathname]);
 
   // Without content no page can be shown: go to the error page, which can retry and come back here.
-  if (error) return <Navigate to={errorPath(error)} replace state={{ from: pathname + search }} />;
+  if (error)
+    return <Navigate to={errorPath(error, language)} replace state={{ from: pathname + search }} />;
 
   return (
     <>
@@ -51,14 +54,14 @@ export function Layout() {
         !intro && (
           <div className="status-screen" aria-busy="true">
             <BrandMark />
-            <p>Cargando…</p>
+            <p>{t.layout.loading}</p>
           </div>
         )
       ) : (
         <>
           <ScrollRestoration />
           <a className="skip-link" href="#contenido">
-            Ir al contenido
+            {t.layout.skip}
           </a>
           <Header profile={data.profile} />
           <main id="contenido" ref={main} tabIndex={-1} className="page" key={pathname}>

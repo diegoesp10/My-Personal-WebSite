@@ -1,30 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { Cookie, ShieldCheck, X } from 'lucide-react';
 import { Link } from '../components/Link';
+import { useLanguage } from '../i18n/LanguageContext';
 import { onOpenCookiePreferences, saveConsent, useConsent, type ConsentCategory } from './consent';
 
-const optional: { id: ConsentCategory; title: string; text: string }[] = [
-  {
-    id: 'analytics',
-    title: 'Analítica',
-    text: 'Ahora mismo no se usan. Las estadísticas del mapa de visitas son anónimas, sin cookies y sin guardar tu IP.',
-  },
-  {
-    id: 'marketing',
-    title: 'Publicidad y redes sociales',
-    text: 'Ahora mismo no se usan. Si algún día se añaden, solo se activarán si lo permites aquí.',
-  },
-];
+// Optional categories, none in use today; their texts are in the dictionaries (t.consent).
+const optional: ConsentCategory[] = ['analytics', 'marketing'];
 
 /**
  * Cookie notice and preferences. The site uses no optional cookies today, so the notice informs and lets the
  * visitor record a choice; any optional script added later must ask hasConsent() first. The preferences open
- * from the notice or from "Preferencias de cookies" in the footer.
+ * from the notice or from the cookie preferences link in the footer.
  */
 export function CookieConsent() {
   const consent = useConsent();
   const dialog = useRef<HTMLDialogElement>(null);
   const [choice, setChoice] = useState({ analytics: false, marketing: false });
+  const { t } = useLanguage();
 
   useEffect(
     () =>
@@ -53,22 +45,21 @@ export function CookieConsent() {
         <section className="cookie-notice" aria-labelledby="cookie-notice-title">
           <Cookie size={22} strokeWidth={1.6} aria-hidden="true" />
           <div>
-            <h2 id="cookie-notice-title">Sin cookies de seguimiento</h2>
+            <h2 id="cookie-notice-title">{t.consent.noticeTitle}</h2>
             <p>
-              Esta web no usa cookies de analítica ni de publicidad. Solo guarda en tu navegador el
-              tema que eliges y esta decisión. <Link to="/legal/cookies">Política de cookies</Link>
+              {t.consent.noticeText} <Link to="/legal/cookies">{t.consent.policy}</Link>
             </p>
           </div>
           <div className="cookie-actions">
             <button type="button" className="button button-small button-ghost" onClick={open}>
-              Configurar
+              {t.consent.configure}
             </button>
             <button
               type="button"
               className="button button-small"
               onClick={() => save({ analytics: false, marketing: false })}
             >
-              Entendido
+              {t.consent.accept}
             </button>
           </div>
         </section>
@@ -82,12 +73,12 @@ export function CookieConsent() {
       >
         <form method="dialog" className="cookie-dialog-inner" onSubmit={() => save(choice)}>
           <header>
-            <p className="eyebrow">Privacidad</p>
-            <h2 id="cookie-dialog-title">Preferencias de cookies</h2>
+            <p className="eyebrow">{t.consent.eyebrow}</p>
+            <h2 id="cookie-dialog-title">{t.consent.title}</h2>
             <button
               type="button"
               className="icon-button cookie-close"
-              aria-label="Cerrar"
+              aria-label={t.consent.close}
               onClick={() => dialog.current?.close()}
             >
               <X size={18} />
@@ -97,20 +88,17 @@ export function CookieConsent() {
             <li>
               <div>
                 <h3>
-                  <ShieldCheck size={16} aria-hidden="true" /> Técnicas y de preferencias
+                  <ShieldCheck size={16} aria-hidden="true" /> {t.consent.technical}
                 </h3>
-                <p>
-                  Tu tema claro u oscuro, esta decisión y, si hace falta verificar una visita, las
-                  cookies de seguridad de Cloudflare. Son necesarias para que la web funcione.
-                </p>
+                <p>{t.consent.technicalText}</p>
               </div>
-              <span className="cookie-always">Siempre activas</span>
+              <span className="cookie-always">{t.consent.always}</span>
             </li>
-            {optional.map(({ id, title, text }) => (
+            {optional.map((id) => (
               <li key={id}>
                 <div>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
+                  <h3>{t.consent[id]}</h3>
+                  <p>{t.consent[`${id}Text`]}</p>
                 </div>
                 <label className="switch">
                   <input
@@ -119,14 +107,14 @@ export function CookieConsent() {
                     onChange={(event) => setChoice({ ...choice, [id]: event.target.checked })}
                   />
                   <span aria-hidden="true" />
-                  <span className="visually-hidden">Permitir {title.toLowerCase()}</span>
+                  <span className="visually-hidden">{t.consent.allow(t.consent[id])}</span>
                 </label>
               </li>
             ))}
           </ul>
           <footer>
             <Link to="/legal/cookies" onClick={() => dialog.current?.close()}>
-              Política de cookies
+              {t.consent.policy}
             </Link>
             <div className="cookie-actions">
               <button
@@ -134,10 +122,10 @@ export function CookieConsent() {
                 className="button button-small button-ghost"
                 onClick={() => save({ analytics: false, marketing: false })}
               >
-                Rechazar opcionales
+                {t.consent.reject}
               </button>
               <button type="submit" className="button button-small">
-                Guardar
+                {t.consent.save}
               </button>
             </div>
           </footer>

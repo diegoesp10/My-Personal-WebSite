@@ -2,11 +2,14 @@ import { useState, type CSSProperties } from 'react';
 import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, MapPin, Phone } from 'lucide-react';
 import { PageHeader } from '../components/Blocks';
 import { usePortfolio } from '../data/PortfolioContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { safeUrl, telUrl } from '../lib/api';
+import { emphasis } from '../lib/format';
 
 export default function ContactPage() {
   const p = usePortfolio().profile;
   const [copied, setCopied] = useState(false);
+  const { t } = useLanguage();
   const github = safeUrl(p.github);
   const linkedin = safeUrl(p.linkedin);
   const phone = telUrl(p.phone);
@@ -26,21 +29,21 @@ export default function ContactPage() {
       href: phone,
       icon: Phone,
       title: p.phone,
-      text: 'Llamada directa',
+      text: t.contact.call,
       external: false,
     },
     linkedin && {
       href: linkedin,
       icon: Linkedin,
       title: 'LinkedIn',
-      text: 'Trayectoria y recomendaciones',
+      text: t.contact.linkedin,
       external: true,
     },
     github && {
       href: github,
       icon: Github,
       title: 'GitHub',
-      text: 'Código y actividad reciente',
+      text: t.contact.github,
       external: true,
     },
   ].filter(Boolean) as {
@@ -54,31 +57,27 @@ export default function ContactPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Contacto"
-        title={
-          <>
-            Hablemos <em className="accent-serif">de tu proyecto</em>
-          </>
-        }
-        lead="Cuéntame qué estás construyendo y en qué punto está. Si encaja con lo que hago, lo hablamos."
+        eyebrow={t.contact.eyebrow}
+        title={emphasis(t.contact.title)}
+        lead={t.contact.lead}
       />
       <section className="shell section-tight">
         {p.email && (
           <div className="email-block" data-reveal>
-            <p className="eyebrow">Correo</p>
+            <p className="eyebrow">{t.contact.email}</p>
             <a href={`mailto:${p.email}`} className="email-big">
               {p.email}
             </a>
             <div className="email-actions">
               <a className="button button-accent" href={`mailto:${p.email}`}>
-                <Mail size={17} /> Escribir un correo
+                <Mail size={17} /> {t.contact.write}
               </a>
               <button type="button" className="button button-ghost" onClick={copy}>
                 {copied ? <Check size={17} /> : <Copy size={17} />}
-                {copied ? 'Copiado' : 'Copiar dirección'}
+                {copied ? t.contact.copied : t.contact.copy}
               </button>
               <span className="visually-hidden" role="status">
-                {copied ? 'Dirección copiada al portapapeles' : ''}
+                {copied ? t.contact.copiedStatus : ''}
               </span>
             </div>
           </div>
@@ -99,7 +98,7 @@ export default function ContactPage() {
               <div>
                 <MapPin size={22} strokeWidth={1.6} />
                 <strong>{p.location}</strong>
-                <span>{p.availability || 'Remoto o presencial'}</span>
+                <span>{p.availability || t.contact.availability}</span>
               </div>
             </li>
           )}

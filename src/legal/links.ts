@@ -1,7 +1,2 @@
-/** Legal pages in navigation order, for the footer and the tabs. */
-export const legalLinks = [
-  { slug: 'aviso-legal', short: 'Aviso legal' },
-  { slug: 'privacidad', short: 'Privacidad' },
-  { slug: 'cookies', short: 'Cookies' },
-  { slug: 'terminos', short: 'Términos' },
-];
+/** Legal pages in navigation order, for the footer. Their short names are in the dictionaries (t.legal.short). */
+export const legalLinks = ['aviso-legal', 'privacidad', 'cookies', 'terminos'];

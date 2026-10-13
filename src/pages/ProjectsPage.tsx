@@ -2,12 +2,16 @@ import { useSearchParams } from 'react-router';
 import { PageHeader } from '../components/Blocks';
 import { ProjectCard } from '../components/ProjectCard';
 import { usePortfolio } from '../data/PortfolioContext';
+import { useLanguage } from '../i18n/LanguageContext';
+import { emphasis } from '../lib/format';
 
-const all = 'Todos';
+// No category filter: shows every project.
+const all = '';
 
 export default function ProjectsPage() {
   const data = usePortfolio();
   const [params, setParams] = useSearchParams();
+  const { t } = useLanguage();
   const categories = [
     all,
     ...new Set(data.projects.map((project) => project.category).filter(Boolean)),
@@ -19,16 +23,12 @@ export default function ProjectsPage() {
   return (
     <>
       <PageHeader
-        eyebrow={`Proyectos · ${String(data.projects.length).padStart(2, '0')}`}
-        title={
-          <>
-            Lo que <em className="accent-serif">construyo</em>
-          </>
-        }
-        lead="Backends .NET, aplicaciones completas y webs en producción. Cada ficha explica el problema, las decisiones técnicas y enlaza al código cuando es público."
+        eyebrow={t.projects.eyebrow(String(data.projects.length).padStart(2, '0'))}
+        title={emphasis(t.projects.title)}
+        lead={t.projects.lead}
       />
       <section className="shell section-tight">
-        <div className="filters" role="group" aria-label="Filtrar por categoría">
+        <div className="filters" role="group" aria-label={t.projects.filter}>
           {categories.map((category) => (
             <button
               key={category}
@@ -47,7 +47,7 @@ export default function ProjectsPage() {
                 });
               }}
             >
-              {category}
+              {category === all ? t.projects.all : category}
               <span>
                 {category === all
                   ? data.projects.length
@@ -61,7 +61,7 @@ export default function ProjectsPage() {
             <ProjectCard key={project.id} project={project} index={index} reflow />
           ))}
         </div>
-        {!projects.length && <p className="empty">Los próximos proyectos aparecerán aquí.</p>}
+        {!projects.length && <p className="empty">{t.projects.empty}</p>}
       </section>
     </>
   );
