@@ -4,13 +4,14 @@ import { ArrowDown, ArrowLeft, ArrowUp, Check, Plus, Save, Trash2, Upload, X } f
 import { BrandMark } from '../components/Brand';
 import { artOptions } from '../components/ProjectArt';
 import { usePortfolioState } from '../data/PortfolioContext';
-import { imageUrl, request } from '../lib/api';
+import { ApiRequestError, imageUrl, request } from '../lib/api';
 import type { Portfolio, Profile } from '../lib/types';
 import { Field, ListField } from './fields';
+import { ErrorHistoryPanel } from './ErrorHistoryPanel';
 
 // Metrics stay in the API contract but are not shown on the site, so they are not edited here.
 type Collection = 'projects' | 'experience' | 'education' | 'skills' | 'entries';
-type Tab = 'profile' | Collection;
+type Tab = 'profile' | 'errors' | Collection;
 
 const tabs: [Tab, string][] = [
   ['profile', 'Perfil'],
@@ -19,6 +20,7 @@ const tabs: [Tab, string][] = [
   ['education', 'Formación'],
   ['skills', 'Competencias'],
   ['entries', 'Diario'],
+  ['errors', 'Errores'],
 ];
 
 const hints: Record<Collection, string> = {
@@ -119,7 +121,10 @@ function Editor({
       setMessage('Guardado. La web ya muestra los cambios.');
     } catch (e) {
       setFailed(true);
-      setMessage((e as Error).message);
+      setMessage(
+        (e as Error).message +
+          (e instanceof ApiRequestError && e.traceId ? ` · Referencia: ${e.traceId}` : ''),
+      );
     } finally {
       setBusy(false);
     }
@@ -142,7 +147,10 @@ function Editor({
       setMessage('Imagen subida. Guarda los cambios para publicarla.');
     } catch (e) {
       setFailed(true);
-      setMessage((e as Error).message);
+      setMessage(
+        (e as Error).message +
+          (e instanceof ApiRequestError && e.traceId ? ` · Referencia: ${e.traceId}` : ''),
+      );
     } finally {
       setUploading(false);
     }
@@ -365,6 +373,7 @@ function Editor({
           </div>
         )}
         <div id="editor-panel" role="tabpanel" aria-labelledby={`tab-${tab}`}>
+          {tab === 'errors' && <ErrorHistoryPanel />}
           <fieldset className="editor-fieldset" disabled={busy || uploading}>
             {tab === 'profile' && (
               <div className="editor-card">
@@ -424,7 +433,7 @@ function Editor({
                 )}
               </div>
             )}
-            {tab !== 'profile' && (
+            {tab !== 'profile' && tab !== 'errors' && (
               <div className="collection-bar">
                 <p>{hints[tab]}</p>
                 <button type="button" className="button button-ghost" onClick={() => add(tab)}>

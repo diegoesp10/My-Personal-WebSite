@@ -151,3 +151,28 @@ export type PageMetadata = {
   published: string | null;
   structuredData: Record<string, unknown> | null;
 };
+
+export type ApiLanguage = 'es' | 'en';
+export type ApiProblem = {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  error: string;
+  code: string;
+  traceId: string;
+  language: ApiLanguage;
+};
+export type ErrorRecord = {
+  id: string;
+  occurredAt: string;
+  code: string;
+  status: number | null;
+  traceId: string;
+  method: string;
+  endpoint: string;
+  exceptionType: string | null;
+  message: string;
+  source?: 'http' | 'dependency' | 'background' | 'storage';
+};
+export type ErrorHistory = { language: ApiLanguage; entries: ErrorRecord[]; message: string };
