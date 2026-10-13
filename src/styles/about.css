@@ -1,0 +1,26 @@
+/* "Sobre mí": personal section with the holographic profile card (React Bits ProfileCard). */
+.personal {
+  grid-template-columns: minmax(260px, 380px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(32px, 6vw, 88px);
+}
+
+.personal-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.personal-copy .personal-icons {
+  flex-direction: row;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 960px) {
+  .personal {
+    grid-template-columns: 1fr;
+  }
+
+  .personal-card {
+    justify-self: center;
+  }
+}
