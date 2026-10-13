@@ -1,19 +1,30 @@
-import { Suspense, useEffect, useRef } from 'react';
-import { Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Navigate, Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { CookieConsent } from '../consent/CookieConsent';
 import { usePortfolioState } from '../data/PortfolioContext';
-import { useReveal } from '../lib/useReveal';
-import { usePageMetadata } from '../lib/seo';
 import { sendVisit } from '../data/visits';
+import { errorPath } from '../lib/errors';
+import { usePageMetadata } from '../lib/seo';
+import { useReveal } from '../lib/useReveal';
+import { shouldPlayIntro } from '../motion/intro';
+import { syncScrollAfterNavigation, useSmoothScroll } from '../motion/useSmoothScroll';
+import { useTextReveal } from '../motion/useTextReveal';
 import { BrandMark } from './Brand';
 import { Footer } from './Footer';
 import { Header } from './Header';
+import { Preloader } from './Preloader';
 
 export function Layout() {
-  const { data, error, reload, canEdit } = usePortfolioState();
-  const { pathname } = useLocation();
+  const { data, error, canEdit } = usePortfolioState();
+  const { pathname, search } = useLocation();
   const main = useRef<HTMLElement>(null);
   const firstRender = useRef(true);
-  useReveal(main, `${pathname}:${data ? 'ready' : 'loading'}`);
+  const [intro, setIntro] = useState(shouldPlayIntro);
+  const finishIntro = useCallback(() => setIntro(false), []);
+  const pageKey = `${pathname}:${data ? 'ready' : 'loading'}`;
+  useReveal(main, pageKey);
+  useTextReveal(main, pageKey);
+  useSmoothScroll();
 
   useEffect(() => sendVisit(pathname), [pathname]);
   usePageMetadata(pathname);
@@ -26,40 +37,39 @@ export function Layout() {
     }
     document.documentElement.classList.remove('first-visit');
     main.current?.focus({ preventScroll: true });
+    syncScrollAfterNavigation();
   }, [pathname]);
 
-  if (error)
-    return (
-      <div className="status-screen">
-        <BrandMark />
-        <h1>No he podido cargar la web.</h1>
-        <p>{error}</p>
-        <button type="button" className="button" onClick={reload}>
-          Reintentar
-        </button>
-      </div>
-    );
-  if (!data)
-    return (
-      <div className="status-screen" aria-busy="true">
-        <BrandMark />
-        <p>Cargando…</p>
-      </div>
-    );
+  // Without content no page can be shown: go to the error page, which can retry and come back here.
+  if (error) return <Navigate to={errorPath(error)} replace state={{ from: pathname + search }} />;
 
   return (
     <>
-      <ScrollRestoration />
-      <a className="skip-link" href="#contenido">
-        Ir al contenido
-      </a>
-      <Header profile={data.profile} />
-      <main id="contenido" ref={main} tabIndex={-1} className="page" key={pathname}>
-        <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
-          <Outlet />
-        </Suspense>
-      </main>
-      <Footer data={data} canEdit={canEdit === true} />
+      {/* Same position in both states, so the intro keeps running when the content arrives. */}
+      {intro && <Preloader ready={Boolean(data)} onDone={finishIntro} />}
+      {!data ? (
+        !intro && (
+          <div className="status-screen" aria-busy="true">
+            <BrandMark />
+            <p>Cargando…</p>
+          </div>
+        )
+      ) : (
+        <>
+          <ScrollRestoration />
+          <a className="skip-link" href="#contenido">
+            Ir al contenido
+          </a>
+          <Header profile={data.profile} />
+          <main id="contenido" ref={main} tabIndex={-1} className="page" key={pathname}>
+            <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
+              <Outlet />
+            </Suspense>
+          </main>
+          <Footer data={data} canEdit={canEdit === true} />
+          <CookieConsent />
+        </>
+      )}
     </>
   );
 }

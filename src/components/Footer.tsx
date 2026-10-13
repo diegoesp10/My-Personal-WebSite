@@ -1,5 +1,7 @@
 import { Link } from './Link';
 import { ArrowUpRight, Settings2 } from 'lucide-react';
+import { openCookiePreferences } from '../consent/consent';
+import { legalLinks } from '../legal/links';
 import { safeUrl } from '../lib/api';
 import type { Portfolio } from '../lib/types';
 import { BrandMark } from './Brand';
@@ -68,6 +70,16 @@ export function Footer({ data, canEdit }: { data: Portfolio; canEdit: boolean })
             </div>
           </nav>
         </div>
+        <nav className="footer-legal" aria-label="Textos legales">
+          {legalLinks.map(({ slug, short }) => (
+            <Link key={slug} to={`/legal/${slug}`}>
+              {short}
+            </Link>
+          ))}
+          <button type="button" onClick={openCookiePreferences}>
+            Preferencias de cookies
+          </button>
+        </nav>
         <div className="footer-bottom">
           <span>
             © {new Date().getFullYear()} {p.name}

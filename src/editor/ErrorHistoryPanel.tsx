@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ApiRequestError, request } from '../lib/api';
+import { ApiError, request } from '../lib/api';
 import type { ApiLanguage, ErrorHistory } from '../lib/types';
 
 export function ErrorHistoryPanel() {
@@ -34,7 +34,7 @@ export function ErrorHistoryPanel() {
         if (!controller.signal.aborted)
           setFailure(
             error.message +
-              (error instanceof ApiRequestError && error.traceId ? ` · ${error.traceId}` : ''),
+              (error instanceof ApiError && error.traceId ? ` · ${error.traceId}` : ''),
           );
       })
       .finally(() => {

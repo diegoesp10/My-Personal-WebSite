@@ -147,19 +147,6 @@
   }
 }
 
-.first-visit .hero-rise {
-  animation: rise 1.1s var(--ease-out-expo) both;
-  animation-delay: calc(0.15s + var(--d, 0) * 0.11s);
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(26px);
-    filter: blur(8px);
-  }
-}
-
 /* Scroll: marked elements rise into place as they appear (lib/useReveal.ts). */
 .reveal-on [data-reveal] {
   opacity: 0;

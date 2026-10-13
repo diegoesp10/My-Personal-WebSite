@@ -1,0 +1,157 @@
+/* Error page (components/ErrorScreen.tsx): a field of code glyphs behind a decrypted error label. */
+.error-screen {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.error-screen.is-embedded {
+  grid-template-rows: 1fr;
+  min-height: min(82vh, 820px);
+}
+
+.error-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+/* Halo behind the text: the glyphs fade out where the message is read. */
+.error-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 62% 58% at 50% 54%,
+    var(--bg) 30%,
+    color-mix(in srgb, var(--bg) 70%, transparent) 58%,
+    transparent 82%
+  );
+}
+
+.error-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-h);
+  position: relative;
+}
+
+.error-card {
+  align-self: center;
+  justify-self: center;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  width: min(720px, 100% - 2 * var(--gutter));
+  padding: 48px 0 72px;
+  text-align: center;
+}
+
+.error-eyebrow {
+  justify-content: center;
+}
+
+.error-eyebrow code {
+  font: inherit;
+  color: var(--accent-text);
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.error-label {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(5.5rem, 22vw, 15rem);
+  line-height: 0.82;
+  letter-spacing: -0.065em;
+  font-variant-numeric: tabular-nums;
+}
+
+.error-label span {
+  display: inline-block;
+  padding: 0 0.04em 0.06em;
+  background: linear-gradient(
+    180deg,
+    var(--ink) 35%,
+    color-mix(in srgb, var(--ink) 35%, var(--accent)) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.error-title {
+  max-width: 20ch;
+  font-size: clamp(1.6rem, 3.6vw, 2.6rem);
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.error-text {
+  max-width: 54ch;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.error-reference {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 5px 5px 5px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-raised) 82%, transparent);
+  backdrop-filter: blur(8px);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.error-reference span {
+  color: var(--muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.error-reference code {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+@media (max-width: 560px) {
+  .error-card {
+    padding: 32px 0 56px;
+  }
+
+  .error-actions .button {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+.glyph-field {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

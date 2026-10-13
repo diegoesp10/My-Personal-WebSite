@@ -1,18 +1,62 @@
 import type { ApiLanguage, ApiProblem } from './types';
 
-export class ApiRequestError extends Error {
+/**
+ * Failure of an API call. The API answers errors as Problem Details (RFC 9457): `code` is stable and drives the
+ * interface (see lib/errors.ts), `message` is the translated `detail` and `traceId` identifies the request in the
+ * logs and the private error history. Older responses ({ error }) and failures without a body get a code from their
+ * status; `network` means the server could not be reached.
+ */
+export class ApiError extends Error {
   constructor(
+    readonly code: string,
     message: string,
-    public readonly status: number,
-    public readonly code?: string,
-    public readonly traceId?: string,
+    readonly status: number,
+    readonly traceId?: string,
   ) {
     super(message);
-    this.name = 'ApiRequestError';
+    this.name = 'ApiError';
   }
 }
 
-/** Language belongs to the transport contract, separate from the portfolio's authored content. */
+/** Same mapping as ErrorCatalog.ForStatus in the API, plus the gateway errors that Nginx answers itself. */
+const codeForStatus = (status: number) =>
+  status === 400
+    ? 'request.invalid'
+    : status === 401 || status === 403
+      ? 'request.forbidden'
+      : status === 404
+        ? 'request.not_found'
+        : status === 409
+          ? 'portfolio.conflict'
+          : status === 413
+            ? 'request.too_large'
+            : status === 429
+              ? 'request.rate_limit'
+              : status === 502 || status === 503 || status === 504
+                ? 'server.unavailable'
+                : status >= 500
+                  ? 'server.unexpected'
+                  : 'request.invalid';
+
+async function toApiError(response: Response, language: ApiLanguage) {
+  const body = (await response.json().catch(() => null)) as Partial<ApiProblem> | null;
+  const text = (value: unknown) => (typeof value === 'string' && value ? value : undefined);
+  return new ApiError(
+    text(body?.code) ?? codeForStatus(response.status),
+    text(body?.detail) ??
+      text(body?.error) ??
+      (language === 'en'
+        ? `The operation could not be completed (${response.status}).`
+        : `No se pudo completar la operación (${response.status}).`),
+    response.status,
+    text(body?.traceId) ?? response.headers.get('X-Correlation-ID') ?? undefined,
+  );
+}
+
+/**
+ * Calls the API. The language belongs to the transport contract, separate from the authored content: GET and HEAD
+ * send it in the query, JSON bodies as a property and uploads as a form field.
+ */
 export async function request<T>(
   url: string,
   init?: RequestInit,
@@ -37,38 +81,20 @@ export async function request<T>(
     if (body && typeof body === 'object' && !Array.isArray(body))
       options.body = JSON.stringify({ ...body, language });
   }
-  const r = await fetch(target, options).catch((error: Error) => {
-    if (error.name === 'AbortError') throw error;
-    throw new ApiRequestError(
-      language === 'en'
-        ? 'Could not connect to the service. Please try again.'
-        : 'No se pudo conectar con el servicio. Inténtalo de nuevo.',
+
+  let response: Response;
+  try {
+    response = await fetch(target, options);
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') throw error;
+    throw new ApiError(
+      'network',
+      language === 'en' ? 'Could not reach the server.' : 'No hay conexión con el servidor.',
       0,
-      'client.network',
-    );
-  });
-  if (!r.ok) {
-    const body = (await r.json().catch(() => null)) as Partial<ApiProblem> | null;
-    const detail =
-      typeof body?.detail === 'string'
-        ? body.detail
-        : typeof body?.error === 'string'
-          ? body.error
-          : language === 'en'
-            ? `The operation could not be completed (${r.status}).`
-            : `No se pudo completar la operación (${r.status}).`;
-    const traceId =
-      typeof body?.traceId === 'string'
-        ? body.traceId
-        : (r.headers.get('X-Correlation-ID') ?? undefined);
-    throw new ApiRequestError(
-      detail,
-      r.status,
-      typeof body?.code === 'string' ? body.code : undefined,
-      traceId,
     );
   }
-  return r.status === 204 ? (undefined as T) : r.json();
+  if (!response.ok) throw await toApiError(response, language);
+  return response.status === 204 ? (undefined as T) : response.json();
 }
 
 /** Only absolute http(s) links reach an href; anything else is dropped. */

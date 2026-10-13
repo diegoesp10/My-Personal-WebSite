@@ -10,15 +10,17 @@ Cada sección es una ruta propia, con su título y descripción para buscadores:
 
 | Ruta | Contenido |
 | --- | --- |
-| `/` | Portada: titular, retrato generativo, especialidad con el caso de rendimiento, proyectos destacados, trayectoria, stack y últimos commits. |
+| `/` | Portada: titular, retrato 3D, cinta con el stack, especialidad con el caso de rendimiento, proyectos destacados, trayectoria y últimos commits. |
 | `/proyectos` | Todos los proyectos con filtro por categoría (`?categoria=` se puede compartir). |
 | `/proyectos/:id` | Ficha del proyecto: historia, puntos destacados, tecnologías y enlaces a la web y a los repositorios. |
 | `/experiencia` | CV online: perfil, experiencia, competencias y formación. Al imprimir se convierte en un CV de una columna (Guardar como PDF). |
 | `/github` | Perfil, lenguajes, commits recientes y repositorios públicos, leídos de GitHub a través de la API. Enlaza cada repositorio con su ficha. |
 | `/visitas` | Mapa de visitas en directo: globo interactivo con las ciudades de origen, cifras, actividad de 30 días, países, últimas visitas, páginas más vistas y sitios de origen. |
-| `/sobre-mi` | Presentación, forma de trabajar y vida fuera de la pantalla. |
+| `/sobre-mi` | Presentación, forma de trabajar y vida fuera de la pantalla, con la tarjeta holográfica de la foto. |
 | `/diario`, `/diario/:id` | Entradas del diario. |
 | `/contacto` | Correo (con botón para copiar), teléfono, LinkedIn, GitHub y modalidad de trabajo. |
+| `/legal/aviso-legal`, `/legal/privacidad`, `/legal/cookies`, `/legal/terminos` | Textos legales (LSSI-CE y RGPD) escritos a partir de lo que hace la web, con los datos del titular tomados del contenido (`src/legal/documents.tsx`). |
+| `/error` | Página de error de la web (`?code=&status=&ref=`), fuera del layout para funcionar aunque no cargue el contenido. |
 | `/editor` | Editor local del contenido. Solo funciona con la API en Development desde este equipo. |
 
 ## Diseño
@@ -28,6 +30,18 @@ Cada sección es una ruta propia, con su título y descripción para buscadores:
 - Composiciones propias para los proyectos sin captura (onda de audio, libro contable, documentos…). Al subir una captura desde el editor, sustituye a la composición.
 - **Retrato generativo** en la portada y en «Sobre mí»: 5.503 puntos dibujados en un canvas (`components/DotPortrait.tsx`). Se construye con una línea de escaneo la primera vez que aparece y los puntos se apartan y se tiñen de naranja alrededor del cursor. En tema claro el tamaño del punto sigue a la sombra; en oscuro, a la luz. La web solo publica `src/assets/portrait-dots.png` (un píxel por punto), nunca la foto. Para regenerarlo con otra foto: `python scripts/portrait/make_portrait.py <foto>` (Pillow, NumPy y SciPy; el recorte y la silueta del script son de la foto original).
 - **Globo de visitas** (`components/Globe.tsx`), dibujado en canvas con proyección ortográfica propia: unos 5.000 puntos de tierra con brillo según la profundidad y la cara oculta en transparencia, ciudades que laten y arcos hasta Oviedo con un cometa animado. Se arrastra con inercia, gira con las flechas del teclado, rota solo en reposo, muestra los datos de cada ciudad al pasar el cursor y se orienta al pulsar un país o una visita. La tierra sale de `src/assets/land-mask.ts` (1 bit por grado), generado desde Natural Earth con `node scripts/globe/make-land-mask.mjs`. Cada página vista se envía con `sendBeacon` (`data/visits.ts`), sin cookies, y no se envía nada si el navegador pide no ser rastreado.
+- **Retrato 3D** (`components/PortraitField3D.tsx`): en la portada y en «Sobre mí», los puntos del retrato forman una nube en WebGL con relieve según la luz de la foto. Al cargar se ensamblan desde el espacio, la figura gira hacia el cursor, los puntos cercanos se apartan y se encienden, una línea de escaneo la recorre cada pocos segundos y al hacer scroll se dispersa. Sin WebGL o con «reducir movimiento» se usa el retrato 2D.
+- **Animación con GSAP y Lenis** (`src/motion`):
+  - Scroll suave con inercia (Lenis), sincronizado con ScrollTrigger.
+  - Pantalla de marca en la primera página de cada visita, con contador de carga y cortina.
+  - Titulares que aparecen línea a línea (SplitText) y entrada de la portada con el puesto «desencriptándose» (ScrambleText).
+  - Botones magnéticos, filas con un foco de luz que sigue al cursor, imágenes de proyecto que se inclinan en 3D con un brillo, línea de tiempo de la trayectoria que crece al hacer scroll y barra de progreso de lectura.
+  - Todo se desactiva con «reducir movimiento».
+- **Componentes de React Bits** (`components/reactbits`, licencia MIT con Commons Clause en su `LICENSE.md`): ProfileCard (tarjeta holográfica de «Sobre mí»), LogoLoop (cinta del stack) y Magnet (botones magnéticos), adaptados a los tokens de la web. Los fondos animados propios son `GlyphField` (página de error) y `DotField` (banda de contacto), en canvas 2D.
+- **Foto de «Sobre mí»** (`src/assets/physique.webp`): recortada y graduada con la paleta de la web por `python scripts/photo/grade_photo.py <foto>`, sin datos EXIF ni de ubicación. La foto original no se publica.
+- **Errores** (`lib/errors.ts`, `components/ErrorScreen.tsx`): `request()` lanza `ApiError` con el código, el estado, el mensaje y la referencia de los Problem Details de la API. Si no carga el contenido se va a `/error`; las rutas inexistentes y los fallos al pintar una página muestran la misma pantalla dentro del layout. El código se «desencripta» sobre un campo de glifos y la referencia se puede copiar.
+- **Cookies** (`src/consent`): la web no usa cookies opcionales. El aviso informa y guarda la decisión; `hasConsent()` es la puerta para cualquier script opcional futuro. Las preferencias se abren desde el pie.
+- **Iconos**: `favicon.ico` (16, 32 y 48 px), PNG en múltiplos de 48 px (Google los muestra desde 48×48), icono de Apple, iconos del manifiesto y `site.webmanifest`. Se generan desde el logotipo con `node scripts/icons/make-icons.mjs` (necesita Google Chrome).
 - **Movimiento** (`styles/motion.css`), con la View Transitions API: las páginas salen con desenfoque y entran desde abajo, la imagen de un proyecto se transforma de la tarjeta a su ficha, la píldora del menú se desliza a la sección nueva, las tarjetas se recolocan al filtrar y el cambio de tema se extiende en círculo desde el botón. Al hacer scroll, los bloques aparecen escalonados. Los navegadores sin View Transitions navegan sin animación y, con «reducir movimiento», todo se desactiva.
 - **Imagen para compartir** (`public/og-image.png`, 1200×630): el retrato de puntos con el nombre y el perfil, en el tema oscuro. Es la que muestran Google, LinkedIn o WhatsApp al compartir una página sin imagen propia. Se genera desde `scripts/og/og-image.html` con `node scripts/og/make-og-image.mjs`, que necesita Google Chrome (variable `CHROME` si no está en la ruta habitual).
 - Accesible: enlace para saltar al contenido, foco gestionado al cambiar de página, `aria-current` en la navegación, contraste AA y movimiento reducido respetado.
@@ -52,7 +66,7 @@ Vista integrada en un solo proceso (compila, copia `dist/` a `Portfolio.Api/wwwr
 .\scripts\Start-Portfolio.ps1            # -SkipBuild reutiliza dist/, -BackendPath otra carpeta
 ```
 
-Otros comandos: `npm run build` (comprobación de tipos y compilación en `dist/`), `npm run typecheck`, `npm run format`.
+Otros comandos: `npm run build` (comprobación de tipos y compilación en `dist/`), `npm run typecheck`, `npm run format`. Para usar la API de Docker en desarrollo: `$env:PORTFOLIO_API='http://127.0.0.1:8081'; npm run dev`.
 
 ## Docker
 
@@ -84,15 +98,18 @@ Cada página llega con su título, descripción, dirección canónica, imagen pa
 src/
 ├── App.tsx                 Router de datos (necesario para las transiciones): una ruta por página
 ├── main.tsx                Fuentes y estilos
-├── assets/                 Datos del retrato generativo
-├── components/             Cabecera, pie, tarjetas, retrato, enlaces con transición, bloques comunes
-├── pages/                  Una página por ruta
+├── assets/                 Datos del retrato generativo, máscara del globo y foto de «Sobre mí»
+├── components/             Cabecera, pie, tarjetas, retrato 2D y 3D, error, fondos animados y componentes de React Bits
+├── pages/                  Una página por ruta (incluidas las legales y la de error)
+├── motion/                 GSAP, Lenis, pantalla de entrada y animaciones de la portada
+├── legal/                  Textos legales
+├── consent/                Aviso y preferencias de cookies
 ├── editor/                 Editor local (carga bajo demanda)
 ├── data/                   Contexto del contenido y consulta de GitHub
 ├── lib/                    Tipos del contrato de la API, metadatos SEO, formato, enlaces seguros y aparición al hacer scroll
 └── styles/                 tokens, base, layout, componentes, páginas, movimiento, editor e impresión
-public/                     favicon, robots.txt, og-image.png y theme-init.js (tema antes del primer pintado)
-scripts/                    Vista integrada local y generadores del retrato, del mapa y de la imagen para compartir
+public/                     Iconos y manifiesto, robots.txt, og-image.png y theme-init.js (tema antes del primer pintado)
+scripts/                    Vista integrada local y generadores del retrato, del mapa, de la imagen para compartir, de los iconos y de la foto
 Dockerfile · nginx.conf · compose.yaml · Start-Docker.ps1
 ```
 
@@ -124,6 +141,6 @@ Con los contenedores locales levantados, `npm run test:web` comprueba la CSP por
 
 Los proyectos admiten `sections?: { title: string; text: string }[]`: la ficha pública presenta estos apartados y el editor permite crearlos, reordenarlos y modificarlos. La ficha del portfolio documenta el despliegue real en Azure y el proceso CI/CD de ambos repositorios.
 
-El cliente API envía `language` con español predeterminado y admite mensajes en inglés. GET usa query; los cuerpos JSON y multipart llevan el campo correspondiente. Las respuestas de error conservan código y correlación mediante `ApiRequestError`. El contrato está documentado en `docs/ERRORS-AND-LANGUAGE.md` del backend.
+El cliente API envía `language` con español predeterminado y admite mensajes en inglés. GET usa query; los cuerpos JSON y multipart llevan el campo correspondiente. Las respuestas de error conservan código y correlación mediante `ApiError`. El contrato está documentado en `docs/ERRORS-AND-LANGUAGE.md` del backend.
 
 En `/editor`, la pestaña Errores consulta los últimos registros y permite seleccionar español o inglés. Requiere la API local en Development y sus controles de acceso; el contenedor de Production rechaza esta consulta. El historial del servidor se revisa mediante una copia privada del volumen, nunca activando el editor público. El idioma afecta a los mensajes de operación y error, sin traducir automáticamente el contenido del portfolio.

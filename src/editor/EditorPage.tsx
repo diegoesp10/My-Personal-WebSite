@@ -4,7 +4,7 @@ import { ArrowDown, ArrowLeft, ArrowUp, Check, Plus, Save, Trash2, Upload, X } f
 import { BrandMark } from '../components/Brand';
 import { artOptions } from '../components/ProjectArt';
 import { usePortfolioState } from '../data/PortfolioContext';
-import { ApiRequestError, imageUrl, request } from '../lib/api';
+import { ApiError, imageUrl, request } from '../lib/api';
 import type { Portfolio, Profile } from '../lib/types';
 import { Field, ListField } from './fields';
 import { ErrorHistoryPanel } from './ErrorHistoryPanel';
@@ -124,7 +124,7 @@ function Editor({
       setFailed(true);
       setMessage(
         (e as Error).message +
-          (e instanceof ApiRequestError && e.traceId ? ` · Referencia: ${e.traceId}` : ''),
+          (e instanceof ApiError && e.traceId ? ` · Referencia: ${e.traceId}` : ''),
       );
     } finally {
       setBusy(false);
@@ -150,7 +150,7 @@ function Editor({
       setFailed(true);
       setMessage(
         (e as Error).message +
-          (e instanceof ApiRequestError && e.traceId ? ` · Referencia: ${e.traceId}` : ''),
+          (e instanceof ApiError && e.traceId ? ` · Referencia: ${e.traceId}` : ''),
       );
     } finally {
       setUploading(false);

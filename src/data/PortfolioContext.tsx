@@ -4,7 +4,8 @@ import type { Portfolio } from '../lib/types';
 
 type PortfolioState = {
   data?: Portfolio;
-  error: string;
+  /** Why the content could not load (an ApiError for API failures); undefined while it loads or once loaded. */
+  error?: unknown;
   /** undefined while the API is being asked whether the local editor is available. */
   canEdit: boolean | undefined;
   reload: () => void;
@@ -15,14 +16,12 @@ const PortfolioContext = createContext<PortfolioState | null>(null);
 
 export function PortfolioProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<Portfolio>();
-  const [error, setError] = useState('');
+  const [error, setError] = useState<unknown>();
   const [canEdit, setCanEdit] = useState<boolean>();
 
   const reload = useCallback(() => {
-    setError('');
-    request<Portfolio>('/api/portfolio')
-      .then(setData)
-      .catch((e: Error) => setError(e.message));
+    setError(undefined);
+    request<Portfolio>('/api/portfolio').then(setData).catch(setError);
   }, []);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import { Link, NavLink } from './Link';
 import { ArrowUpRight, Github, Linkedin, Menu, X } from 'lucide-react';
@@ -31,6 +31,28 @@ export function Header({ profile }: { profile: Profile }) {
   const shortName = profile.name.split(' ').slice(0, 2).join(' ');
 
   useEffect(() => setOpen(false), [pathname]);
+  // Reading progress: a thin accent line under the header.
+  const progress = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const share = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+      if (progress.current) progress.current.style.transform = `scaleX(${share})`;
+    };
+    const schedule = () => {
+      frame ||= requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
+  }, [pathname]);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
@@ -84,7 +106,8 @@ export function Header({ profile }: { profile: Profile }) {
           </button>
         </div>
       </div>
-      <div id="mobile-menu" className="mobile-menu" hidden={!open}>
+      <span ref={progress} className="scroll-progress" aria-hidden="true" />
+      <div id="mobile-menu" className="mobile-menu" hidden={!open} data-lenis-prevent>
         <nav aria-label="Principal (móvil)">
           <NavLink to="/" end>
             Inicio
