@@ -223,6 +223,11 @@ export const es = {
     other: 'Otros',
     drivingLicense: 'Carnet de conducir',
     ownVehicle: 'Vehículo propio',
+    /** Printed CV only. */
+    ownProjects: 'Proyectos propios',
+    stack: 'Stack',
+    website: 'Web',
+    languagesOther: 'Idiomas y otros',
   },
   about: {
     eyebrow: 'Sobre mí',

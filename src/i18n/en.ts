@@ -218,6 +218,10 @@ export const en: Messages = {
     other: 'Other',
     drivingLicense: 'Driving licence',
     ownVehicle: 'Own vehicle',
+    ownProjects: 'Own projects',
+    stack: 'Stack',
+    website: 'Website',
+    languagesOther: 'Languages and other',
   },
   about: {
     eyebrow: 'About me',

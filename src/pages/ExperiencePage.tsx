@@ -36,6 +36,9 @@ export default function ExperiencePage() {
   const linkedin = safeUrl(p.linkedin);
   const projectsOf = (positionId: string) =>
     data.projects.filter((project) => project.experienceId === positionId);
+  // Printed CV: personal projects (not tied to a position) and the address of this site.
+  const ownProjects = data.projects.filter((project) => !project.experienceId);
+  const siteHost = typeof window === 'undefined' ? '' : window.location.hostname;
 
   return (
     <>
@@ -52,22 +55,131 @@ export default function ExperiencePage() {
         </Link>
       </PageHeader>
 
-      {/* Shown only when printing: the page becomes a one-column CV. */}
-      <div className="print-only cv-print-header">
-        <h1>{p.name}</h1>
-        <p>{p.role}</p>
-        <p>
-          {[
-            p.location,
-            p.email,
-            p.phone,
-            ...mobility,
-            github && shortUrl(github),
-            linkedin && shortUrl(linkedin),
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-        </p>
+      {/* Shown only when printing: a compact CV document with the same content as the page, plus the own projects. */}
+      <div className="print-only cv-print">
+        <header className="cv-print-header">
+          <h1>{p.name}</h1>
+          <p className="cv-print-role">{p.role}</p>
+          <p>{[p.location, p.email, p.phone, p.availability].filter(Boolean).join(' · ')}</p>
+          <p>
+            {[siteHost, github && shortUrl(github), linkedin && shortUrl(linkedin)]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
+        </header>
+
+        <section>
+          <h2>{t.experience.profile}</h2>
+          {paragraphs(p.bio).map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </section>
+
+        <section>
+          <h2>{t.experience.positions}</h2>
+          {data.experience.map((role) => (
+            <article key={role.id} className="cv-print-item">
+              <h3>
+                {role.role} <span>— {role.company}</span>
+              </h3>
+              <p className="cv-print-meta">
+                {[format.period(role.start, role.end), format.duration(role.start, role.end), role.location]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+              {role.summary && <p>{role.summary}</p>}
+              {role.highlights.length > 0 && (
+                <ul>
+                  {role.highlights.map((highlight) => (
+                    <li key={highlight}>{highlight}</li>
+                  ))}
+                </ul>
+              )}
+              {role.stack.length > 0 && (
+                <p className="cv-print-stack">
+                  <strong>{t.experience.stack}:</strong> {role.stack.join(' · ')}
+                </p>
+              )}
+              {projectsOf(role.id).map((project) => (
+                <p key={project.id} className="cv-print-stack">
+                  <strong>{project.title}:</strong> {project.description}
+                </p>
+              ))}
+            </article>
+          ))}
+        </section>
+
+        {ownProjects.length > 0 && (
+          <section>
+            <h2>{t.experience.ownProjects}</h2>
+            {ownProjects.map((project) => {
+              const site = safeUrl(project.url) || (project.id === 'portfolio' ? siteHost : '');
+              const links = [
+                site && `${t.experience.website}: ${shortUrl(site)}`,
+                ...project.links
+                  .filter((link) => safeUrl(link.url))
+                  .map((link) => `${link.label}: ${shortUrl(link.url)}`),
+              ].filter(Boolean);
+              return (
+                <article key={project.id} className="cv-print-item cv-print-project">
+                  <h3>
+                    {project.title}{' '}
+                    <span>— {[project.year, project.status].filter(Boolean).join(' · ')}</span>
+                  </h3>
+                  <p>{project.description}</p>
+                  {project.highlights.length > 0 && (
+                    <ul>
+                      {project.highlights.slice(0, 4).map((highlight) => (
+                        <li key={highlight}>{highlight}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {project.tags.length > 0 && (
+                    <p className="cv-print-stack">
+                      <strong>{t.experience.stack}:</strong> {project.tags.join(' · ')}
+                    </p>
+                  )}
+                  {links.length > 0 && <p className="cv-print-stack">{links.join(' · ')}</p>}
+                </article>
+              );
+            })}
+          </section>
+        )}
+
+        <section>
+          <h2>{t.experience.skills}</h2>
+          {data.skills.map((skill) => (
+            <p key={skill.id} className="cv-print-skill">
+              <strong>{skill.title}:</strong> {skill.tags.join(' · ')}
+            </p>
+          ))}
+        </section>
+
+        {data.education.length > 0 && (
+          <section>
+            <h2>{t.experience.education}</h2>
+            {data.education.map((item) => (
+              <p key={item.id}>
+                <strong>{item.title}</strong>
+                {' — '}
+                {[
+                  item.center,
+                  item.location,
+                  [format.month(item.start), format.month(item.end)].filter(Boolean).join(' — '),
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+            ))}
+          </section>
+        )}
+
+        <section>
+          <h2>{t.experience.languagesOther}</h2>
+          {p.languages && <p>{p.languages}</p>}
+          {mobility.length > 0 && <p>{mobility.join(' · ')}</p>}
+          {p.personal && <p>{p.personal}</p>}
+        </section>
       </div>
 
       <div className="shell cv-layout">
