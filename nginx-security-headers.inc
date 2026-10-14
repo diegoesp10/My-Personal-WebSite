@@ -1,6 +1,9 @@
 # Headers for the files served by Nginx. Proxied API responses keep the headers set by the API.
 # This OpenSSL-enabled Nginx generates a fresh 128-bit request_id for the CSP nonce. Cloudflare
 # reads the response header and assigns this nonce to its injected JavaScript Detections scripts.
+# HSTS: browsers only honour it over HTTPS, which is what visitors get through Cloudflare, so it is sent always.
+# Subdomains are not included: www answers with its own header and any other subdomain stays unaffected.
+add_header Strict-Transport-Security "max-age=31536000" always;
 add_header X-Content-Type-Options nosniff always;
 add_header X-Frame-Options DENY always;
 add_header Referrer-Policy strict-origin-when-cross-origin always;
