@@ -202,6 +202,7 @@ export const en: Messages = {
   experience: {
     eyebrow: 'Career · Online CV',
     title: 'Experience *and CV*',
+    download: 'Download CV (PDF)',
     print: 'Print or save as PDF',
     contact: 'Get in touch',
     location: 'Location',

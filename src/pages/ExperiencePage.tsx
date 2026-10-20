@@ -4,6 +4,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   Briefcase,
+  Download,
   GraduationCap,
   Mail,
   MapPin,
@@ -12,7 +13,7 @@ import {
 } from 'lucide-react';
 import { PageHeader, Tags } from '../components/Blocks';
 import { usePortfolio } from '../data/PortfolioContext';
-import { safeUrl, telUrl } from '../lib/api';
+import { cvUrl, safeUrl, telUrl } from '../lib/api';
 import { mobilityDetails, positionAnchor } from '../lib/portfolio';
 import { useLanguage } from '../i18n/LanguageContext';
 import { emphasis, paragraphs, useFormat } from '../lib/format';
@@ -29,7 +30,7 @@ const shortUrl = (url: string) => {
 export default function ExperiencePage() {
   const data = usePortfolio();
   const p = data.profile;
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const format = useFormat();
   const mobility = mobilityDetails(p, t);
   const github = safeUrl(p.github);
@@ -47,7 +48,10 @@ export default function ExperiencePage() {
         title={emphasis(t.experience.title)}
         lead={p.intro}
       >
-        <button type="button" className="button" onClick={() => window.print()}>
+        <a className="button" href={cvUrl(language)} download type="application/pdf" hrefLang={language}>
+          <Download size={17} aria-hidden="true" /> {t.experience.download}
+        </a>
+        <button type="button" className="button button-ghost" onClick={() => window.print()}>
           <Printer size={17} /> {t.experience.print}
         </button>
         <Link className="button button-ghost" to="/contacto">

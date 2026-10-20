@@ -104,6 +104,9 @@ export const safeUrl = (url: string) => (/^https?:\/\//i.test(url) ? url : undef
 export const imageUrl = (url: string) =>
   /^\/uploads\/[a-f0-9]+\.(png|jpg|webp)$/.test(url) ? url : undefined;
 
+/** PDF of the CV in a language, served by the API as a download with its own file name. */
+export const cvUrl = (language: ApiLanguage) => `/api/cv?language=${language}`;
+
 /** tel: link for a phone number already validated by the API (+34 600 000 000 → tel:+34600000000). */
 export const telUrl = (phone: string) => {
   const digits = phone.replace(/[^\d+]/g, '');

@@ -207,6 +207,7 @@ export const es = {
   experience: {
     eyebrow: 'Trayectoria · CV online',
     title: 'Experiencia *y CV*',
+    download: 'Descargar CV (PDF)',
     print: 'Imprimir o guardar en PDF',
     contact: 'Contactar',
     location: 'Ubicación',
