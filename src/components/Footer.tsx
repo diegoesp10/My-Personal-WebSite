@@ -36,7 +36,7 @@ export function Footer({ data, canEdit }: { data: Portfolio; canEdit: boolean })
           <nav className="footer-nav" aria-label={t.footer.label}>
             <div>
               <h2>{t.footer.pages}</h2>
-              <ul>
+              <ul className="footer-pages">
                 <li>
                   <Link to="/">{t.nav.home}</Link>
                 </li>
