@@ -334,7 +334,7 @@
 
 /* Footer */
 .site-footer {
-  padding: 64px 0 32px;
+  padding: 56px 0 28px;
   border-top: 1px solid var(--line);
 }
 
@@ -343,6 +343,7 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 40px;
+  margin-bottom: 40px;
 }
 
 .footer-brand {
@@ -388,6 +389,13 @@
   list-style: none;
 }
 
+/* Pages fill four rows and then a new column, so the footer stays short as the menu grows. */
+.footer-pages {
+  grid-auto-flow: column;
+  grid-template-rows: repeat(4, auto);
+  column-gap: 40px;
+}
+
 .footer-nav a {
   display: inline-flex;
   align-items: center;
@@ -411,6 +419,18 @@
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: 0.875rem;
+}
+
+/* The legal links already leave their own space above the bottom line. */
+.footer-legal + .footer-bottom {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .footer-nav {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
 }
 
 .footer-bottom a {
