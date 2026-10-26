@@ -380,9 +380,9 @@ function Editor({
             Hazlo <em className="accent-serif">tuyo.</em>
           </h1>
           <p className="muted">
-            Los cambios se guardan en este equipo al pulsar «Guardar cambios». Cada idioma se edita
-            y se guarda por separado, con los mismos identificadores. Para Docker o producción,
-            copia después el contenido de App_Data.
+            Los cambios se guardan en la carpeta content/ del backend al pulsar «Guardar cambios».
+            Cada idioma se edita y se guarda por separado, con los mismos identificadores. Para
+            publicarlos, haz commit de content/ y fusiona la PR en main.
           </p>
           <div className="filters editor-language" role="group" aria-label="Idioma del contenido">
             {languages.map((code) => (
