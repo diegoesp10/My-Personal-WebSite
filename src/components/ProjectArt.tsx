@@ -11,6 +11,7 @@ export const artOptions: [string, string][] = [
   ['erp', 'Módulos de ERP'],
   ['xml', 'Proceso y XML'],
   ['salon', 'Peluquería · web, agenda y gestión'],
+  ['pitch', 'Fútbol · campo y acta'],
   ['blue', 'Azul geométrico'],
 ];
 
@@ -72,6 +73,52 @@ export function ProjectArt({ kind }: { kind: string }) {
           {'\n'}
           <span className="tag">&lt;/{t.art.xmlTags.catalog}&gt;</span>
         </pre>
+      </div>
+    );
+  if (kind === 'pitch')
+    return (
+      <div className="art art-pitch" aria-hidden="true">
+        <span className="art-caption">{t.art.pitch}</span>
+        <svg viewBox="0 0 160 100" className="pitch-field">
+          <rect x="4" y="4" width="152" height="92" rx="2" />
+          <line x1="80" y1="4" x2="80" y2="96" />
+          <circle cx="80" cy="50" r="12" />
+          <rect x="4" y="28" width="24" height="44" />
+          <rect x="132" y="28" width="24" height="44" />
+          {[
+            [30, 30],
+            [48, 62],
+            [62, 40],
+            [70, 78],
+            [104, 56],
+            [118, 30],
+            [126, 70],
+            [140, 50],
+          ].map(([x, y], index) => (
+            <circle
+              key={`${x}-${y}`}
+              className={index < 4 ? 'pitch-home' : 'pitch-away'}
+              cx={x}
+              cy={y}
+              r="3.2"
+            />
+          ))}
+          <circle className="pitch-ball" cx="96" cy="42" r="2.4" />
+        </svg>
+        <div className="pitch-sheet">
+          <strong>
+            {t.art.pitchScore}
+            <span>{t.art.pitchRating}</span>
+          </strong>
+          <ul>
+            {t.art.pitchStats.map(([label, value]) => (
+              <li key={label}>
+                <span>{label}</span>
+                <b>{value}</b>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   if (kind === 'salon')

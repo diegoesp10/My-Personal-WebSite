@@ -1239,3 +1239,83 @@
   line-height: 1.3;
   letter-spacing: -0.025em;
 }
+
+/* Decorative football pitch and a match sheet with the computed rating; no real data. */
+.tone-pitch {
+  background: var(--pitch-bg);
+  color: var(--pitch-ink);
+}
+.art-pitch {
+  grid-template-columns: 1.35fr 1fr;
+  gap: 6%;
+  padding: 14% 9% 12%;
+}
+.art-pitch .art-caption {
+  top: 20px;
+  bottom: auto;
+  left: 62px;
+}
+.pitch-field {
+  width: 100%;
+  fill: none;
+  stroke: var(--pitch-line);
+  stroke-width: 1.2;
+  transform: rotate(-4deg);
+}
+.pitch-field .pitch-home {
+  fill: var(--pitch-paper);
+  stroke: none;
+}
+.pitch-field .pitch-away {
+  fill: var(--pitch-line);
+  stroke: none;
+}
+.pitch-field .pitch-ball {
+  fill: var(--accent);
+  stroke: none;
+}
+.pitch-sheet {
+  width: 100%;
+  padding: 10% 12%;
+  background: var(--pitch-paper);
+  color: var(--pitch-bg);
+  border: 1px solid var(--pitch-line);
+  border-radius: 12px;
+  transform: rotate(3deg);
+}
+.pitch-sheet strong {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 15cqi, 4.5rem);
+  font-weight: 400;
+  line-height: 1;
+}
+.pitch-sheet strong span {
+  font-family: var(--font-mono);
+  font-size: clamp(0.5rem, 2.6cqi, 0.65rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pitch-muted);
+}
+.pitch-sheet ul {
+  display: grid;
+  gap: 5px;
+  margin: 10% 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: clamp(0.5rem, 2.8cqi, 0.7rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.pitch-sheet li {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 4px;
+  border-top: 1px solid var(--pitch-line);
+}
+.pitch-sheet b {
+  font-weight: 600;
+}
